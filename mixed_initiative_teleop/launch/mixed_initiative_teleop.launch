@@ -1,0 +1,19 @@
+<!-- Launch file for Jaguar robot teleoperation-->
+
+<launch>
+
+
+ <!-- joy node for taking joystick parameters and input -->
+  <node pkg="joy" type="joy_node" name="joy_node" >
+    <param name="dev" type="string" value="/dev/input/js1" /> <!-- change jsX for selecting joystick input-->
+    <param name="deadzone" value="0.12" />
+  </node>
+
+<!-- Teleoperation node for transforming joy node joystick input into velocity commands -->
+<node pkg="jaguar_teleop" type="jaguar_teleop_node" name="teleop_node" > </node>
+
+<!-- Teleoperation node for transforming joy node joystick input into velocity commands -->
+<node pkg="drrobot_player_driver3" type="drrobot_player_driver3_node" name="jaguar_driver_node" > </node>
+
+</launch>
+

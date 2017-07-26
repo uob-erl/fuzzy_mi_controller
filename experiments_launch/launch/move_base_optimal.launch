@@ -1,0 +1,35 @@
+<launch>
+
+<!--param name="/move_base/conservative_reset/reset_distance" type="double" value="15"/>
+<param name="/move_base/conservative_reset_dist" type="double" value="15"/-->
+
+<node pkg="move_base" type="move_base" respawn="true" name="move_base_optimal" output="screen">
+     <remap from="/cmd_vel" to="/cmd_vel_optimal" /> 
+     <remap from="/move_base/status" to="/move_base_optimal/status" />
+  
+    <param name="base_global_planner" value="navfn/NavfnROS"/>
+    <!--param name="base_global_planner" value="global_planner/GlobalPlanner"/--> 
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/> 
+    <!--param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS"/-->  
+
+    <rosparam file="$(find experiments_launch)/config/costmap_common_params_optimal.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find experiments_launch)/config/costmap_common_params_optimal.yaml" command="load" ns="local_costmap" />
+
+    <rosparam file="$(find experiments_launch)/config/global_costmap_params.yaml" command="load" ns="local_costmap" />
+    <rosparam file="$(find experiments_launch)/config/global_costmap_params.yaml" command="load" ns="global_costmap" />
+
+    <rosparam file="$(find experiments_launch)/config/base_local_planner_params.yaml" command="load" />
+    <rosparam file="$(find experiments_launch)/config/navfn_params.yaml" command="load" />
+
+
+    <!--rosparam file="$(find experiments_launch)/config/recovery_params.yaml" command="load" />
+    <rosparam file="$(find experiments_launch)/config/clear_costmap_params.yaml" command="load" /-->
+
+
+    <param name="controller_frequency" type="double" value="10.0"/>
+    <param name="controller_patience" type="double" value="4.0"/>  
+    <param name="planner_patience" type="double" value="0.5"/>
+    <param name="recovery_behavior_enabled" type="bool" value="false"/> 
+ </node>
+
+</launch>

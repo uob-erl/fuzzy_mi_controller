@@ -1,0 +1,61 @@
+<launch>
+
+<!-- Launch file for use on robot computer. Runs the nodes on robot -->
+
+  
+<!-- RosAria pioneer drivers -->
+<node pkg="rosaria" type="RosAria" name="RosAria" >
+  <param name="port" value="/dev/ttyUSB0" />
+  <param name="trans_decel" value="1"/>
+  <param name="trans_accel" value="0.5"/>
+  <param name="rot_accel" value="2"/>
+  <remap from="/RosAria/cmd_vel" to="/cmd_vel" />
+  <remap from="/RosAria/pose" to="odom" />
+   </node>
+
+
+<!-- hokuyo laser scaner drivers -->
+  <node pkg="urg_node" type="urg_node" respawn="false" output="screen" name="hokuyo">
+    <param name="frame_id" type="string" value="base_laser"/>
+    <param name="calibrate_time" type="bool" value="true"/> <!-- Starts up slow, but accurate timestamps  --> 
+    <param name="port" type="string" value="/dev/ttyACM0"/> <!-- Set the port to connect to here -->
+    <param name="publish_intensity" type="bool" value="false"/>
+    <param name="angle_max" type="double" value="1.92"/>
+    <param name="angle_min" type="double" value="-1.92"/>
+   </node>
+
+<!-- Filter laser scan to remove veiling effect -->
+<node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
+    <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml" />
+</node>
+
+<!-- Laser noise node to add some extra noise-->
+  <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="laser_noise" > 
+      <remap from="/scan" to="/scan_filtered" />
+      <remap from="/scan_with_noise" to="/scan_final" />
+  </node>
+
+<!-- tf transform -->
+<!-- args ="x y z qx qy qz frame_id child_frame_id period_in_ms" -->
+<node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" args="0.20 0 0.20 0 0 0 /base_link /base_laser 25" />
+
+
+<!-- Gmapping SLAM -->
+<include file="$(find experiments_launch)/launch/slam_gmapping.launch"/>
+
+<!-- Hector SLAM -->
+<!--include file="$(find experiments_launch)/launch/hector_slam.launch"/-->
+
+<!-- Navigation stuff / move_base -->
+<include file="$(find experiments_launch)/launch/move_base.launch"/>
+
+<!-- usb_cam -->
+<include file="$(find experiments_launch)/launch/usb_cam.launch"/>
+
+<!-- Frontier exploration -->
+ <!--include file="$(find experiments_launch)/launch/frontier_exploration.launch"/-->
+
+
+
+
+</launch>

@@ -1,0 +1,15 @@
+<launch>
+
+
+
+
+<!-- optimal move_base -->
+<include file="$(find experiments_launch)/launch/move_base_optimal.launch"/>
+
+
+<!-- MI controller-->
+  <node respawn="true" pkg="variable_autonomy" type="mi_fuzzy_controller_node" name="mi_fuzzy_controller" output="screen"> 
+  </node>
+
+
+</launch>  

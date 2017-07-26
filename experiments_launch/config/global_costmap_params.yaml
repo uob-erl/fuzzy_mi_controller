@@ -1,0 +1,17 @@
+#Independent settings for the global planner's costmap. Detailed descriptions of these parameters can be found at http://www.ros.org/wiki/costmap_2d
+
+
+global_frame: map
+#track_unknown_space: true
+update_frequency: 4.0
+publish_frequency: 2.0
+resolution: 0.025
+
+plugins:
+  - {name: static,                  type: "costmap_2d::StaticLayer"}
+  - {name: inflation,               type: "costmap_2d::InflationLayer"}
+
+
+
+
+

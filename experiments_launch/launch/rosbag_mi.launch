@@ -1,0 +1,89 @@
+<launch>
+
+
+<!-- launch rosbag tool but record certain topics-->
+<node pkg="rosbag" type="record" name="rosbag"
+
+       args="-o /home/manolis/rosbags
+                /ai_switch_count
+                /vel_error
+                /vel_error_average
+                /loa_has_changed
+                /cmd_vel_optimal
+                /joy
+                /joy2
+                /joint_states
+                /navigation/cmd_vel
+                /teleop/cmd_vel
+                /cmd_vel
+                /odom
+                /scan
+                /scan_final
+                /map
+                /map_metadata
+                /map_updates
+                /amcl/parameter_descriptions
+                /amcl/parameter_updates
+		/particlecloud
+                /amcl_pose              
+                /tf
+                /tf_static
+		/trajectory	
+	        /usb_cam/image_raw/compressed
+                /usb_cam/image_raw/compressed/parameter_descriptions
+                /usb_cam/image_raw/compressed/parameter_updates
+                /control_mode
+		/secondary_task/ended
+		/secondary_task/started
+                /experiment_started
+              	/robot_status/nav/compressed
+		/robot_status/mode/compressed/parameter_descriptions
+ 		/robot_status/nav/compressed/parameter_updates
+ 		/robot_status/mode/compressed
+		/robot_status/mode/compressed/parameter_updates
+	        /clicked_point
+  		/move_base/local_costmap/obstacle_layer_footprint/parameter_updates
+            	/move_base/NavfnROS/plan
+            	/move_base/status
+                /move_base/local_costmap/obstacle_layer/parameter_updates
+                /move_base/TrajectoryPlannerROS/local_plan
+		/move_base/global_costmap/obstacle_layer_footprint/footprint_stamped
+          	/move_base/feedback
+		/move_base/local_costmap/costmap
+		/move_base/global_costmap/inflation_layer/parameter_descriptions
+ 		/move_base/local_costmap/inflation_layer/parameter_updates
+ 		/move_base/parameter_updates
+		/move_base/local_costmap/obstacle_layer_footprint/footprint_stamped
+ 		/move_base/global_costmap/costmap
+		/move_base/current_goal
+		/move_base/local_costmap/parameter_updates
+ 		/move_base/TrajectoryPlannerROS/parameter_descriptions
+ 		/move_base/goal
+ 		/move_base/TrajectoryPlannerROS/cost_cloud
+		/move_base/TrajectoryPlannerROS/parameter_updates
+ 		/move_base/global_costmap/obstacle_layer_footprint/parameter_descriptions
+		/move_base/global_costmap/obstacle_layer/parameter_updates
+		/move_base/global_costmap/costmap_updates
+		/move_base/local_costmap/inflation_layer/parameter_descriptions
+		/move_base/local_costmap/parameter_descriptions
+		/move_base/global_costmap/inflation_layer/parameter_updates
+ 		/move_base/global_costmap/obstacle_layer/parameter_descriptions
+		/move_base/global_costmap/static_layer/parameter_updates
+		/move_base/local_costmap/costmap_updates
+		/move_base/parameter_descriptions
+		/move_base/global_costmap/parameter_updates
+		/move_base/global_costmap/obstacle_layer_footprint/parameter_updates
+ 		/move_base/global_costmap/static_layer/parameter_descriptions
+   		/move_base/TrajectoryPlannerROS/global_plan
+   		/move_base/local_costmap/obstacle_layer_footprint/parameter_descriptions
+   		/move_base/local_costmap/obstacle_layer/parameter_descriptions
+   		/move_base/global_costmap/parameter_descriptions
+                /move_base/local_costmap/footprint
+   		/move_base/result
+ 		/move_base/cancel
+		/move_base_simple/goal
+ 		/diagnostics
+		/rosout
+		/rosout_agg" />
+
+</launch>

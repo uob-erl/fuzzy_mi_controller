@@ -1,0 +1,17 @@
+<launch>
+
+
+<!-- launch rosbag tool but record certain topics-->
+<node pkg="rosbag" type="record" name="rosbag"
+
+       args="-o /home/manolis/rosbags
+
+                /clock
+                /loa_has_changed
+                /cmd_vel_optimal
+                /cmd_vel
+                /vector_vel_error
+	        /linear_vel_error
+		/angular_error" />
+
+</launch>

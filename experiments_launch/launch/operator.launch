@@ -1,0 +1,38 @@
+<launch>
+<!-- Launch file for use on OCU. Runs the nodes on operator's computer -->
+
+<!-- joy node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="joy_node" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.15" />
+  </node>
+
+<node respawn="true" pkg="joy" type="joy_node" name="joy2_node" > <!-- second joystick for experimenter logging -->
+    <param name="dev" type="string" value="/dev/input/js1" />
+    <remap from="/joy" to="/joy2" /> 
+   </node> 
+
+<!-- teleop node -->
+<node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen"/>
+
+<!-- cmd mixer for choosing autonomy mode or e.g. emergency stop if nav doesnt work good. (buttons for teleoperation - stop - autonomy mode) -->
+<!-- In xbox controller Y =  teleop , A = auto , LB = stop (in any case) -->
+<node pkg="variable_autonomy" type="control_mixer_node" name="control_mixer" output="screen"/>
+
+<!-- Hector trajectory server for keeping history and visualizing of all the paths visited -->
+<node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>
+
+<!-- mode, logging and status visualising nodes -->
+<!--+++++++++++++++++++++++++++++++++++++++++++++-->
+<node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
+<node pkg="status_publisher" type="experiment_logger" name="experiment_logger" output="screen"/>
+<node pkg="status_publisher" type="status_sound_publisher_node" name="status_sound_publisher_node" output="screen"/>>
+
+<node pkg="rviz" type="rviz" name="rviz" 
+    args="-d $(find experiments_launch)/rviz_cfg/rviz_cfg.rviz"/> 
+
+<!-- Play sounds -->
+<node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/> 
+
+
+</launch>

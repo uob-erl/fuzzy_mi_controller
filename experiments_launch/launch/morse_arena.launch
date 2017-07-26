@@ -1,0 +1,64 @@
+<launch>
+
+<!-- joy node (joystick drivers)-->
+  <node respawn="true" pkg="joy" type="joy_node" name="joy_node" >
+    <param name="dev" type="string" value="/dev/input/js0" /> <!-- change this /jsX depending on your joystick port -->
+    <param name="deadzone" value="0.15" />
+  </node> 
+
+   <node respawn="true" pkg="joy" type="joy_node" name="joy2_node" > <!-- second joystick for experimenter logging -->
+    <param name="dev" type="string" value="/dev/input/js1" />
+    <remap from="/joy" to="/joy2" /> 
+   </node> 
+
+<!-- teleop node -->
+<node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen"/>
+
+<!-- cmd mixer for choosing autonomy mode or e.g. emergency stop if nav doesnt work good. (buttons for teleoperation - stop - autonomy mode) -->
+<!-- In xbox controller Y =  teleop , A = auto , LB = stop (in any case) -->
+<node pkg="variable_autonomy" type="control_mixer_node" name="control_mixer" output="screen"/>
+
+<!-- tf transform -->
+<!-- args ="x y z qx qy qz frame_id child_frame_id period_in_ms" -->
+<node pkg="tf" type="static_transform_publisher" name="base_link_to_laser" args="-0.15 0 0.20 0 0 0 base_link base_laser 50" />
+
+
+<!-- Navigation stuff / move_base -->
+<include file="$(find experiments_launch)/launch/move_base.launch"/>
+<!--include file="$(find experiments_launch)/launch/move_base_optimal.launch"/-->
+
+<!-- MAP server to load the predefined map -->
+  <arg name="map_file" default="$(find experiments_launch)/world/map_perfect.yaml" />
+
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" >
+    <remap from="/map" to="/map" />
+  </node>
+
+<!-- AMCL -->
+<include file="$(find experiments_launch)/launch/amcl.launch"/>
+
+<!-- Laser noise node to add some extra noise-->
+  <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="laser_noise" > 
+      <remap from="/scan_with_noise" to="/scan_final" />
+  </node>
+
+<!-- Play sounds -->
+<node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/> 
+
+<!-- mode, logging and status visualising nodes -->
+<!--+++++++++++++++++++++++++++++++++++++++++++++-->
+<node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
+<node pkg="status_publisher" type="experiment_logger" name="experiment_logger" output="screen"/>
+<node pkg="status_publisher" type="cam_compress" name="cam_compress" output="screen"/>
+<node pkg="status_publisher" type="status_sound_publisher_node" name="status_sound_publisher_node" output="screen"/>
+
+<!-- Hector trajectory server for keeping history and visualizing of all the paths visited -->
+<node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>
+
+<node pkg="rviz" type="rviz" name="rviz" 
+    args="-d $(find experiments_launch)/rviz_cfg/rviz_cfg.rviz"/> 
+
+<!-- Robot Model -->
+<include file="$(find p2os_urdf)/launch/pioneer3dx_urdf.launch"/>
+
+</launch>

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package>
+  <name>mixed_initiative_teleop</name>
+  <version>1.0.0</version>
+  <description>The mixed_initiative_teleop package takes joystick input from joy node and sends motion commands (such as angular or linear velocity) to jaguar robot drivers node. It is a catkinized and lightly modified version of the original Drrobot's node</description>
+
+  <maintainer email="manolis.chiou@gmail.com">Manolis</maintainer>
+  <license>BSD</license>
+  <url type="repository">https://github.com/uobirlab/jaguar</url> 
+
+
+  <!-- Dependencies -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>joy</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+
+
+  <run_depend>joy</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+
+ 
+</package>
