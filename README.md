@@ -1,34 +1,29 @@
 # experiment3_mi
 Repository for the Mixed-Inititive experiments.
 
-# Installing fuzzylite cpp library 
+# Installing fuzzylite 6 cpp library
+The original fuzzy controller was made using the version 4.0 of fuzzylite library which is now unavailable. Thus fuzzylite 6.0 can be used. WARNING: the fuzzy controller to be compiled with version 6 of fuzzylite was not tested in practice. Some code changes were neccessery for it to compile, hence the behavior might have changed (unlikely though!).
+1) Do a `cd` into the fuzzylite folder.
 
-1) Download the v4.0 library
+2)  run `./build.sh release`
 
-2) unzip the source code in order to build nd install library
-
-3) cd into the fuzzylite folder
-
-4) change the code in CMakeLists.txt file into:
+3) Use checkinstall to create a debian file instead of installing the library old school. It makes life easier e.g. you can install or remove library via apt-get.
 
 ```sh
-install(TARGETS fl-bin fl-shared fl-static
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib
-		ARCHIVE DESTINATION lib
-		)
+sudo apt-get install checkinstall
+cd release
+sudo checkinstall --pkgname=fuzzylight6
 ```
 
-5) run the following commands
-
+Alternatively:
 ```sh
-$ mkdir -p release
-$ cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DFL_BACKTRACE=ON -DFL_USE_FLOAT=OFF -DFL_CPP11=ON
-$ make
-$ sudo make install
-```
+cd release
+sudo make install
+````
 
-6) the library should work
+In order to unistall, if make install was used, `cat install_manifest.txt | xargs echo sudo rm | sh`.
+
+4) The library is installed.
 
 # Running simulated experiment
 

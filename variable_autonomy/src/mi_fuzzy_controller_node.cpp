@@ -189,7 +189,7 @@ void ControlDataLogger::robotVelOptimalCallback(const geometry_msgs::Twist::Cons
 void ControlDataLogger::computeCostCallback(const ros::TimerEvent&)
 {
 
-    if (mi_active_ == 1)
+    if (mi_active_ = 1)
     {
         vel_error_ = cmdvel_optimal_.linear.x - cmdvel_robot_.linear.x;
         vel_error_ = fabs(vel_error_);
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
     outputVariable->setEnabled(true);
     outputVariable->setName("change_LOA");
     outputVariable->setRange(-1.000, 1.000);
-    outputVariable->fuzzyOutput()->setAccumulation(new fl::Maximum);
+    outputVariable->fuzzyOutput()->setAggregation(new fl::Maximum); // the old setAccumulation is the new Aggregation?
     outputVariable->setDefuzzifier(new fl::LargestOfMaximum(200));
     outputVariable->setDefaultValue(fl::nan);
 
@@ -308,7 +308,8 @@ int main(int argc, char *argv[])
     ruleBlock->setName("");
     ruleBlock->setConjunction(new fl::Minimum);
     ruleBlock->setDisjunction(new fl::Maximum);
-    ruleBlock->setActivation(new fl::Minimum);
+    ruleBlock->setImplication(new fl::Minimum);
+    // ruleBlock->setActivation(new fl::Threshold);This is now called implication operator
     ruleBlock->addRule(fl::Rule::parse("if error is small or error is medium then change_LOA is no_change", engine));
     ruleBlock->addRule(fl::Rule::parse("if error is large and speed is not reverse then change_LOA is change", engine));
     ruleBlock->addRule(fl::Rule::parse("if speed is reverse and error is large then change_LOA is no_change", engine));
