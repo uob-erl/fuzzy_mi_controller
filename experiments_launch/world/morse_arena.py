@@ -23,7 +23,7 @@ robot.properties(GroundRobot = True)
 
 # place your component at the correct location
 # pioneer3dx.rotate(<rx>, <ry>, <rz>)
-#robot.translate(1, 0, 0.0) <- training 
+#robot.translate(1, 0, 0.0) <- training
 robot.translate(-3.9, 6.5, 0.0)
 robot.rotate(0, 0, 1.57)
 
@@ -63,9 +63,6 @@ camera.add_stream('ros', topic = '/robot_cam')
 
 # set 'fastmode' to True to switch to wireframe mode
 # 'tum_kitchen/tum_kitchen' '/home/manolis/Dropbox/MORSE/maze_new' /home/manolis/Dropbox/MORSE/training_arena/training_arena
-env = Environment('/home/manolis/Dropbox/MORSE/exp2_arena/new_arena.blend')
+env = Environment('/home/manolis/hri_ws/src/fuzzy_mi_controller_repo/experiments_launch/world/exp2_arena/new_arena.blend')
 env.set_camera_location([10.0, -10.0, 10.0])
 env.set_camera_rotation([1.05, 0, 0.78])
-
-
-
