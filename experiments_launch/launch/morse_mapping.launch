@@ -1,5 +1,7 @@
 <launch>
 
+<param name ="/use_sim_time" value="true"/>
+
 <!-- joy node -->
   <node respawn="true" pkg="joy" type="joy_node" name="joy_node" >
     <param name="dev" type="string" value="/dev/input/js0" />
@@ -22,7 +24,7 @@
 <include file="$(find experiments_launch)/launch/slam_gmapping.launch"/>
 
 <!-- Navigation stuff / move_base -->
-<include file="$(find experiments_launch)/launch/move_base.launch"/>
+<!--include file="$(find experiments_launch)/launch/move_base.launch"/-->
 
 <!-- mode and status visualising node -->
 <node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>

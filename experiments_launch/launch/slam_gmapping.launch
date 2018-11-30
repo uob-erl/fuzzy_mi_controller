@@ -2,8 +2,8 @@
 <launch>
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen">
 <param name="odom_frame" value="odom"/> 
-      <param name="map_update_interval" value="2"/>
-      <param name="maxUrange" value="28"/>
+      <param name="map_update_interval" value="5.0"/>
+      <param name="maxUrange" value="9.5"/>
       <param name="sigma" value="0.05"/>
       <param name="kernelSize" value="1"/>
       <param name="lstep" value="0.05"/>
@@ -16,22 +16,22 @@
       <param name="srt" value="0.02"/>
       <param name="str" value="0.01"/>
       <param name="stt" value="0.02"/>
-      <param name="linearUpdate" value="0.5"/>
+      <param name="linearUpdate" value="0.1"/>
       <param name="angularUpdate" value="0.25"/>
       <param name="temporalUpdate" value="-1"/>
       <param name="resampleThreshold" value="0.5"/>
-      <param name="particles" value="20"/>
-      <param name="xmin" value="-7.0"/>
-      <param name="ymin" value="-7.0"/>
-      <param name="xmax" value="7.0"/>
-      <param name="ymax" value="7.0"/>
+      <param name="particles" value="30"/>
+      <param name="xmin" value="-10.0"/>
+      <param name="ymin" value="-10.0"/>
+      <param name="xmax" value="10.0"/>
+      <param name="ymax" value="10.0"/>
       <param name="delta" value="0.025"/>
       <param name="llsamplerange" value="0.01"/>
       <param name="llsamplestep" value="0.01"/>
       <param name="lasamplerange" value="0.005"/>
       <param name="lasamplestep" value="0.005"/>
      <param name="occ_thresh" value="0.15"/>
-     <param name="maxRange" value="28"/>
-<remap from="scan" to="scan_final" />
+     <param name="maxRange" value="10"/>
+<!--remap from="scan" to="scan_final" /-->
     </node>
 </launch>
