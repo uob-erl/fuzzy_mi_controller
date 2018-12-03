@@ -5,6 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Footprint1
+        - /Camera1
       Splitter Ratio: 0.510066986
     Tree Height: 481
   - Class: rviz/Selection
@@ -167,14 +168,14 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /robot_cam
+      Image Topic: /camera/rgb/image_raw
       Max Value: 1
       Median window: 5
       Min Value: 0
       Name: Camera
       Normalize Range: true
       Queue Size: 2
-      Transport Hint: raw
+      Transport Hint: theora
       Unreliable: false
       Value: true
     - Alpha: 1
@@ -277,6 +278,15 @@ Visualization Manager:
           Show Trail: false
           Value: true
         base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        camera_frame_optical:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        camera_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
