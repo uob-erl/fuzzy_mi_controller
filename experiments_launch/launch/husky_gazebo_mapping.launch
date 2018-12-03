@@ -1,0 +1,38 @@
+<launch>
+
+<!-- <param name ="/use_sim_time" value="true"/> -->
+
+<!-- joy node -->
+  <node respawn="true" pkg="joy" type="joy_node" name="joy_node" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.15" />
+  </node>
+
+<!-- teleop node -->
+<node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen">
+    <param name="scale_linear" value="0.4" />
+    <param name="scale_angular" value="0.6" />
+</node>
+
+
+<!-- cmd mixer for choosing autonomy mode or e.g. emergency stop if nav doesnt work good. (buttons for teleoperation - stop - autonomy mode) -->
+<!-- In xbox controller Y =  teleop , A = auto , LB = stop (in any case) -->
+<node pkg="variable_autonomy" type="control_mixer_node" name="control_mixer" output="screen">
+   <remap from="/cmd_vel" to="/husky_velocity_controller/cmd_vel" />
+</node>
+
+<!-- Gmapping SLAM -->
+<include file="$(find husky_navigation)/launch/gmapping_demo.launch"/>
+
+<!-- Navigation stuff / move_base -->
+<!-- <include file="$(find experiments_launch)/launch/move_base.launch"/> -->
+
+<!-- mode and status visualising node -->
+<node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
+
+<node pkg="rviz" type="rviz" name="rviz"
+    args="-d $(find experiments_launch)/rviz_cfg/rviz_husky.rviz"/>
+
+
+
+</launch>
