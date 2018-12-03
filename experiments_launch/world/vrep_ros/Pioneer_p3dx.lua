@@ -1,65 +1,40 @@
-function cmdVel_callback(msg)
 
-end
-
-function setLeftMotorVelocity_cb(msg)
-    -- Left motor speed subscriber callback
-    sim.setJointTargetVelocity(leftMotor,msg.data)
-end
-
-function setRightMotorVelocity_cb(msg)
-    -- Right motor speed subscriber callback
-    sim.setJointTargetVelocity(rightMotor,msg.data)
-end
-
+-- Takes cmd_vel from ROS, impliments differential drive kinematics and sends commands to the motors
 function callback_MotorsVelocity(msg)
-    V= msg.linear.x
-    W= msg.angular.z
-    L= distWheels
-    R = 0.0925
-    C = 2*math.pi*R
 
-    Vr=V+(L/2)*W
-    Vl=V-(L/2)*W
-
-    -- Wr = Vr/R
-    -- Wl = Vl/R
-
-    Vl = Vl/C
-    Vr = Vr/C
-    Vl=Vl*2*math.pi
-    Vr=Vr*2*math.pi
-
-    simSetJointTargetVelocity(leftMotor,Vl)
-    simSetJointTargetVelocity(rightMotor,Vr)
-    simAddStatusbarMessage(string.format("Vl:%f Vr:%f",Vl, Vr))
+    cmd_velX = msg.linear.x
+    cmd_velW = msg.angular.z
+    
 end
+
 
 -- Tf transform message
-function getTransformMsg(objHandle,name,relTo,relToName,time)
-    local p=sim.getObjectPosition(objHandle,relTo)
-    local o=sim.getObjectQuaternion(objHandle,relTo)
+function getTransformMsg(robotHandle,name,relTo,relToName)
+
+    local pose = sim.getObjectPosition(robotHandle,-1)
+    local rotation = sim.getObjectQuaternion(robotHandle,-1)
 
     return {
         header={
-            stamp=simGetSimulationTime(),
-            frame_id=relToName
+            stamp = simGetSimulationTime(),
+            frame_id = "odom"
         },
-        child_frame_id=name,
+        child_frame_id = "base_link",
         transform={
-            translation={x=p[1],y=p[2],z=p[3]},
-            rotation={x=o[1],y=o[2],z=o[3],w=o[4]}
+            translation={x=pose[1],y=pose[2],z=pose[3]},
+            rotation={x=rotation[1],y=rotation[2],z=rotation[3],w=rotation[4]}
         }
     }
 end
 
 -- Odometry message
-function getOdometryMsg(objHandle,name,relTo,relToName,time)
-    local p=sim.getObjectPosition(objHandle,relTo)
-    local o=sim.getObjectQuaternion(objHandle,relTo)
-    print("Odom position:",p)
-    print("Odom orientation:",o)
-    local lv,av=sim.getObjectVelocity(objHandle)
+function getOdometryMsg(robotHandle,name,relTo,relToName)
+
+    local pose = sim.getObjectPosition(robotHandle,relTo)
+    local orientation = sim.getObjectQuaternion(robotHandle,relTo)
+    local v_linear, v_angular = sim.getObjectVelocity(robotHandle)
+    local dt=simGetSimulationTimeStep()
+    local v = (v_linear[1]^2 + v_linear[2]^2 + v_linear[3]^2)^0.5
 
     return {
         header={
@@ -69,25 +44,34 @@ function getOdometryMsg(objHandle,name,relTo,relToName,time)
         child_frame_id=name,
         pose={
             pose={
-              position={x=p[1],y=p[2],z=p[3]},
-              orientation={x=o[1],y=o[2],z=o[3],w=o[4]}
+              position={x=pose[1],y=pose[2],z=pose[3]},
+              orientation={x=orientation[1],y=orientation[2],z=orientation[3],w=orientation[4]}
             },
         },
         twist={
             twist={
-              linear={x=lv[1],y=lv[2],z=lv[3]},
-              angular={x=av[1],y=av[2],z=av[3]}
+              linear={x=v, y=v0, z=0},
+              angular={x=v_angular[1],y=v_angular[2],z=v_angular[3]}
             },
         },
     }
 end
 
+-- initialization
 function sysCall_init()
     -- Check if the RosInterface is available:
     moduleName=0
     moduleVersion=0
     index=0
     pluginFound=false
+
+    L = 0.36 -- lenght between the two wheels
+    R = 0.0975 -- wheel radius
+    cmd_velW=0
+    cmd_velX=0
+    Vr=0
+    Vl=0
+
     while moduleName do
         moduleName,moduleVersion=sim.getModuleName(index)
         if (moduleName=='RosInterface') then
@@ -96,41 +80,29 @@ function sysCall_init()
         index=index+1
     end
 
-    usensors={-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}
-    for i=1,16,1 do
-        usensors[i]=sim.getObjectHandle("Pioneer_p3dx_ultrasonicSensor"..i)
-    end
     robotHandle=sim.getObjectAssociatedWithScript(sim.handle_self)
+
     leftMotor=sim.getObjectHandle("Pioneer_p3dx_leftMotor")
     rightMotor=sim.getObjectHandle("Pioneer_p3dx_rightMotor")
-    noDetectionDist=0.5
-    maxDetectionDist=0.1
-    detect={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-    braitenbergL={-0.2,-0.4,-0.6,-0.8,-1,-1.2,-1.4,-1.6, 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}
-    braitenbergR={-1.6,-1.4,-1.2,-1,-0.8,-0.6,-0.4,-0.2, 0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0}
-    v0=2
 
     -- Wheel distance
-    lwheel = sim.getObjectPosition(sim.getObjectHandle("Pioneer_p3dx_leftWheel"),robotHandle)
-    --rwheel = sim.getObjectPosition(sim.getObjectHandle("Pioneer_p3dx_rightWheel",robotHandle))
-    distWheels = math.abs(lwheel[2]*2)
-    print("Wheel distance",distWheels)
+    --lwheel = sim.getObjectPosition(sim.getObjectHandle("Pioneer_p3dx_leftWheel"),robotHandle)
+    --rwheel = sim.getObjectPosition(sim.getObjectHandle("Pioneer_p3dx_rightWheel"),robotHandle)
+    --distWheels = math.abs(lwheel[2]) + math.abs(rwheel[2])
+    --print("Wheel distance",distWheels)
 
     if pluginFound then
-        leftMotorSub=simROS.subscribe('/leftMotor','std_msgs/Float32','setLeftMotorVelocity_cb')
-        rightMotorSub=simROS.subscribe('/rightMotor','std_msgs/Float32','setRightMotorVelocity_cb')
         cmd_velSub=simROS.subscribe('/cmd_vel', 'geometry_msgs/Twist', 'callback_MotorsVelocity')
         odomPub=simROS.advertise('/odom', 'nav_msgs/Odometry')
         clockPub=simROS.advertise('/clock','rosgraph_msgs/Clock')
-        --tfPub=simROS.advertise('/tf', 'tf2_msgs/TFMessage')
 
         -- simStepDonePub=simROS.advertise('/simulationStepDone', 'std_msgs/Bool')
         -- simStatePub=simROS.advertise('/simulationState','std_msgs/Int32')
         -- simTimePub=simROS.advertise('/simulationTime','std_msgs/Float32')
         -- auxPub=simROS.advertise('/privateMsgAux', 'std_msgs/Bool')
         -- auxSub=simROS.subscribe('/privateMsgAux', 'std_msgs/Bool', 'aux_callback')
-
         -- rosInterfaceSynModeEnabled=false
+
     else
         sim.displayDialog('Error','The RosInterface was not found.',sim.dlgstyle_ok,false,nil,{0.8,0,0,0,0,0},{0.5,0,0,1,1,1})
     end
@@ -138,66 +110,42 @@ function sysCall_init()
     collider = sim.getCollisionHandle("envCollisions")
     collCount=0
     prevCollisionTime=sim.getSystemTimeInMs(-1)
+
+
 end
--- This is a very simple EXAMPLE navigation program, which avoids obstacles using the Braitenberg algorithm
 
 
 function sysCall_cleanup()
 
 end
 
+-- atm collision sensing
 function sysCall_sensing()
+
+  -- counting collisions
     res,_ = sim.handleCollision(collider)
 
-    if (res==1 and sim.getSystemTimeInMs(prevCollisionTime) > 1000) then
+    if (res==1 and sim.getSystemTimeInMs(prevCollisionTime) > 2000) then
         prevCollisionTime=sim.getSystemTimeInMs(-1)
         collCount=collCount+1
         print(collCount)
     end
 end
 
-function sysCall_actuation()
     -- Perform robot control tasks here
-    _,vlMotorSpd = sim.getObjectFloatParameter(leftMotor,sim.jointfloatparam_velocity)
-    _,vrMotorSpd = sim.getObjectFloatParameter(rightMotor,sim.jointfloatparam_velocity)
-    odomMotorSpd = (vlMotorSpd+vrMotorSpd)/20
+function sysCall_actuation()
 
-    L= distWheels
-    odomAngMotorSpd = ((vrMotorSpd-vlMotorSpd)/L)/10
+     -- calculating velocities and sending motor commands
+     Vr = (cmd_velX + (L/2) * cmd_velW) * 10
+     Vl = (cmd_velX - (L/2) * cmd_velW) * 10
 
+     sim.setJointTargetVelocity(leftMotor,Vl)
+     sim.setJointTargetVelocity(rightMotor,Vr)
 
-    local t=simROS.getTime()
-    --CURRENTLY PUBLISHED ON DIFFERENT TIMESTAMPS!!!!
-    -- Publish tf transform; -1 in V-rep refers to world (odom) frame
+    -- Publish tf transform and odometry; -1 in V-rep refers to world (odom) frame
     simROS.sendTransform(getTransformMsg(robotHandle,'/base_link',-1,'/odom'))
-    -- Publish odometry; -1 in V-rep refers to world (odom) frame
     simROS.publish(odomPub,getOdometryMsg(robotHandle,'/base_link',-1,'/odom'))
-    simROS.publish(clockPub,{clock=simGetSimulationTime()})
 
+    simROS.publish(clockPub,{clock=simGetSimulationTime()}) -- the /clock sim time topic in ROS
 
-
-
-    -- Sample code
-    -- for i=1,16,1 do
-    --     res,dist=sim.readProximitySensor(usensors[i])
-    --     if (res>0) and (dist<noDetectionDist) then
-    --         if (dist<maxDetectionDist) then
-    --             dist=maxDetectionDist
-    --         end
-    --         detect[i]=1-((dist-maxDetectionDist)/(noDetectionDist-maxDetectionDist))
-    --     else
-    --         detect[i]=0
-    --     end
-    -- end
-    --
-    -- vLeft=v0
-    -- vRight=v0
-    --
-    -- for i=1,16,1 do
-    --     vLeft=vLeft+braitenbergL[i]*detect[i]
-    --     vRight=vRight+braitenbergR[i]*detect[i]
-    -- end
-    --
-    -- sim.setJointTargetVelocity(leftMotor,vLeft)
-    -- sim.setJointTargetVelocity(rightMotor,vRight)
 end

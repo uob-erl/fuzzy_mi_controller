@@ -52,10 +52,6 @@ camera.add_stream('ros', topic = '/morse_cam')
 
 # set 'fastmode' to True to switch to wireframe mode
 # 'tum_kitchen/tum_kitchen' '/home/manolis/Dropbox/MORSE/maze_new' /home/manolis/Dropbox/MORSE/training_arena/training_arena
-env = Environment('/home/manolis/Dropbox/MORSE/training_arena/training_arena')
+env = Environment('/home/manolis/hri_ws/src/fuzzy_mi_controller_repo/experiments_launch/world/training_arena/training_arena')
 env.set_camera_location([10.0, -10.0, 10.0])
 env.set_camera_rotation([1.05, 0, 0.78])
-
-
-
-
