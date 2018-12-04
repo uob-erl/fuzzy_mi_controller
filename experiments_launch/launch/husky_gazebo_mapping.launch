@@ -2,6 +2,18 @@
 
 <launch>
 
+  <arg name="laser_enabled" default="true"/>
+  <arg name="kinect_enabled" default="true"/>
+  <arg name="urdf_extras" default=""/>
+
+  <include file="$(find experiments_launch)/launch/gazebo_world.launch" />
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="urdf_extras" value="$(arg urdf_extras)"/>
+  </include>
+
   <!-- joy node -->
   <node respawn="true" pkg="joy" type="joy_node" name="joy_node">
     <param name="dev" type="string" value="/dev/input/js0"/>
