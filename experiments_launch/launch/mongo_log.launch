@@ -1,3 +1,0 @@
-rosrun mongodb_log mongodb_log.py --mongodb-name=ROStesting2 /cmd_vel /map /amcl_pose /tf /trajectory /control_mode /noise_active /secondary_task/ended /secondary_task/started /experiment_started /move_base/NavfnROS/plan /move_base/status /move_base/TrajectoryPlannerROS/local_plan /move_base/local_costmap/costmap /move_base/result
-
-
