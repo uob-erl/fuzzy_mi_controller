@@ -8,10 +8,10 @@
   <param name="initial_pose_x" value="0.673"/>
   <param name="initial_pose_y" value="-0.200"/>
   <param name="initial_pose_a" value="-0.0420"/>
-  
+
   <!-- General parameters -->
-  <param name="min_particles" value="100"/>
-  <param name="max_particles" value="2000"/>
+  <param name="min_particles" value="500"/>
+  <param name="max_particles" value="5000"/>
   <param name="kld_err" value="0.01"/>
   <param name="kld_z" value="0.99"/>
   <param name="update_min_d" value="0.2"/>
@@ -21,7 +21,7 @@
   <param name="recovery_alpha_slow" value="0.0"/>
   <param name="recovery_alpha_fast" value="0.0"/>
   <param name="gui_publish_rate" value="-1.0"/>
- 
+
   <!-- Odometry model parameters -->
   <param name="odom_frame_id" value="odom"/>
   <param name="base_frame_id" value="base_link"/>
@@ -31,7 +31,7 @@
   <param name="odom_alpha2" value="0.005"/>
   <param name="odom_alpha3" value="0.010"/>
   <param name="odom_alpha4" value="0.005"/>
- 
+
  <!-- Laser model parameters -->
   <!--param name="laser_z_hit" value="0.5"/>
   <param name="laser_z_short" value="0.05"/>
@@ -43,6 +43,6 @@
   <param name="laser_likelihood_max_dist" value="2.0"/>
   <param name="laser_max_beams" value="30"/>
   <param name="laser_model_type" value="likelihood_field"/-->
-  </node> 
+  </node>
 
 </launch>

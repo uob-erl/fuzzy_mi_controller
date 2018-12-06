@@ -4,7 +4,6 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Footprint1
         - /Camera1
       Splitter Ratio: 0.510066986
     Tree Height: 214
@@ -25,7 +24,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Mode
+    SyncSource: Camera
 Visualization Manager:
   Class: ""
   Displays:
@@ -61,12 +60,12 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: costmap
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: CostmapLocal
       Topic: /move_base/local_costmap/costmap
       Unreliable: false
       Use Timestamp: false
-      Value: true
+      Value: false
     - Alpha: 0.699999988
       Class: rviz/Map
       Color Scheme: costmap
@@ -426,7 +425,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 3.14500523
+      Angle: 3.15500712
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
@@ -436,11 +435,11 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Scale: 55.8776703
+      Scale: 39.6650276
       Target Frame: map
       Value: TopDownOrtho (rviz)
-      X: -0.300515383
-      Y: 0.446035445
+      X: -9.79907322
+      Y: -7.45410109
     Saved:
       - Angle: 4.32500982
         Class: rviz/TopDownOrtho
