@@ -41,8 +41,8 @@
   </node>
 
   <!-- SLAM -->
-  <!-- <include file="$(find husky_navigation)/launch/gmapping_demo.launch"/> -->
-    <include file="$(find experiments_launch)/launch/slam_hector.launch"/>
+  <!-- <include file="$(find husky_navigation)/launch/gmapping.launch"/> -->
+  <include file="$(find experiments_launch)/launch/slam_hector.launch"/>
 
     <!--- Run Move Base -->
     <include file="$(find husky_navigation)/launch/move_base.launch" />

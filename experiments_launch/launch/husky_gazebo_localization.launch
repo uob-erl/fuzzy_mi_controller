@@ -10,6 +10,7 @@
   <!-- other parameters -->
   <arg name="map_file" default="$(find experiments_launch)/world/map.yaml"/>
   <arg name="scan_topic" default="scan_filtered"/>
+  <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
 
   <!-- launching gazebo stuff -->
   <include file="$(find experiments_launch)/launch/gazebo_world.launch"/>
@@ -48,9 +49,17 @@
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
 
   <!--- Run AMCL -->
-  <include file="$(find husky_navigation)/launch/amcl.launch">
+  <!-- <include file="$(find husky_navigation)/launch/amcl.launch">
     <arg name="scan_topic" value="$(arg scan_topic)"/>
-  </include>
+  </include> -->
+  <!-- Fake/perfect localization -->
+    <node pkg="fake_localization" type="fake_localization" name="fake_localization">
+      <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
+      <param name="delta_x" value="6.9"/>
+      <param name="delta_y" value="1.03"/>
+      <param name="delta_yaw" value="0.0"/>
+    </node>
+
 
   <!--- Run Move Base -->
   <include file="$(find husky_navigation)/launch/move_base.launch"/>
