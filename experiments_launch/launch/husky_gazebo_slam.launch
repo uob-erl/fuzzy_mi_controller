@@ -2,25 +2,35 @@
 
 <launch>
 
-<!-- parameters for the husky packages e.g. for husky description -->
+  <!-- parameters for the husky packages e.g. for husky description -->
   <arg name="laser_enabled" default="true"/>
   <arg name="kinect_enabled" default="true"/>
   <arg name="urdf_extras" default=""/>
 
-<!-- launching gazebo stuff -->
-  <include file="$(find experiments_launch)/launch/gazebo_world.launch" />
+  <arg name="x" default="0.5"/>
+  <arg name="y" default="0"/>
+  <arg name="z" default="0"/>
+  <arg name="yaw" default="0"/>
+
+  <!-- launching gazebo stuff -->
+  <include file="$(find experiments_launch)/launch/gazebo_world.launch"/>
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="urdf_extras" value="$(arg urdf_extras)"/>
+
+    <arg name="x" value="$(arg x)"/>
+    <arg name="y" value="$(arg y)"/>
+    <arg name="z" value="$(arg z)"/>
+    <arg name="yaw" value="$(arg yaw)"/>
   </include>
 
   <!-- Filter laser scan to remove veiling effect and artifacts -->
-<node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
-    <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml" />
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
+    <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/>
     <!-- <remap from="/scan_filtered" to="/scan_final" /> -->
-</node>
+  </node>
 
   <!-- joy node for joystick input-->
   <node respawn="true" pkg="joy" type="joy_node" name="joy_node">
@@ -44,8 +54,8 @@
   <!-- <include file="$(find husky_navigation)/launch/gmapping.launch"/> -->
   <include file="$(find experiments_launch)/launch/slam_hector.launch"/>
 
-    <!--- Run Move Base -->
-    <include file="$(find husky_navigation)/launch/move_base.launch" />
+  <!--- Run Move Base -->
+  <include file="$(find husky_navigation)/launch/move_base.launch"/>
 
   <!-- mode and status visualising node -->
   <node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
