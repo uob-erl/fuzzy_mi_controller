@@ -7,10 +7,11 @@
   <arg name="kinect_enabled" default="true"/>
   <arg name="urdf_extras" default=""/>
 
-  <arg name="x" default="0.5"/>
-  <arg name="y" default="0"/>
+<!-- spawning coordinates in gazebo -->
+  <arg name="x" default="9.04"/>
+  <arg name="y" default="-6.99"/>
   <arg name="z" default="0"/>
-  <arg name="yaw" default="0"/>
+  <arg name="yaw" default="3.14"/>
 
   <!-- launching gazebo stuff -->
   <include file="$(find experiments_launch)/launch/gazebo_world.launch"/>

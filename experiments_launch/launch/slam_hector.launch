@@ -23,8 +23,8 @@
    <param name="laser_min_dist" value="0.05" />
    <param name="laser_max_dist" value="28.0" />
 
-   <param name="map_start_x" value="0.5" />
-   <param name="map_start_y" value="0.5" />
+   <param name="map_start_x" value="0.25" />
+   <param name="map_start_y" value="0.75" />
 
 </node>
 
