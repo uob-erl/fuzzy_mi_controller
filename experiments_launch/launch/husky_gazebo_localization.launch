@@ -7,9 +7,15 @@
   <arg name="kinect_enabled" default="true"/>
   <arg name="urdf_extras" default=""/>
 
+  <!-- spawning coordinates in gazebo -->
+    <arg name="x" default="9.04"/>
+    <arg name="y" default="-6.99"/>
+    <arg name="z" default="0"/>
+    <arg name="yaw" default="3.14"/>
+
   <!-- other parameters -->
   <arg name="map_file" default="$(find experiments_launch)/world/map.yaml"/>
-  <arg name="scan_topic" default="scan_filtered"/>
+  <arg name="scan_topic" default="scan_final"/>
   <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
 
   <!-- launching gazebo stuff -->
@@ -19,13 +25,17 @@
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="urdf_extras" value="$(arg urdf_extras)"/>
+    <arg name="x" value="$(arg x)"/>
+    <arg name="y" value="$(arg y)"/>
+    <arg name="z" value="$(arg z)"/>
+    <arg name="yaw" value="$(arg yaw)"/>
   </include>
 
   <!-- Filter laser scan to remove veiling effect and artifacts -->
-  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
-    <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/>
+  <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
+    <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/> -->
     <!-- <remap from="/scan_filtered" to="/scan_final" /> -->
-  </node>
+  <!-- </node> -->
 
   <!-- joy node for joystick input-->
   <node respawn="true" pkg="joy" type="joy_node" name="joy_node">
@@ -55,9 +65,9 @@
   <!-- Fake/perfect localization -->
     <node pkg="fake_localization" type="fake_localization" name="fake_localization">
       <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
-      <param name="delta_x" value="6.9"/>
-      <param name="delta_y" value="1.03"/>
-      <param name="delta_yaw" value="0.0"/>
+      <param name="delta_x" value="-9.05"/>
+      <param name="delta_y" value="6.95"/>
+      <param name="delta_yaw" value="3.14"/>
     </node>
 
 

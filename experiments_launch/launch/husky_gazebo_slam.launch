@@ -20,7 +20,6 @@
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="urdf_extras" value="$(arg urdf_extras)"/>
-
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
     <arg name="z" value="$(arg z)"/>
@@ -28,10 +27,10 @@
   </include>
 
   <!-- Filter laser scan to remove veiling effect and artifacts -->
-  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
-    <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/>
+  <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter"> -->
+    <!-- <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/> -->
     <!-- <remap from="/scan_filtered" to="/scan_final" /> -->
-  </node>
+  <!-- </node>  -->
 
   <!-- joy node for joystick input-->
   <node respawn="true" pkg="joy" type="joy_node" name="joy_node">
