@@ -81,7 +81,7 @@ double linear_scaling_, angular_scaling_;
 geometry_msgs::Twist last_msg_published_;
 boost::mutex publish_mutex_;
 
-ros::Publisher vel_pub_, mode_pub_;
+ros::Publisher vel_pub_, loa_pub_;
 ros::Subscriber joy_sub_;
 ros::Timer timer_;
 
@@ -106,7 +106,7 @@ JoystickTeleop::JoystickTeleop() :
         ph_.param("auto_button", auto_button_, 0); // A button
 
         vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/teleop/cmd_vel", 5);
-        mode_pub_ = nh_.advertise<std_msgs::Int8>("/control_mode", 5);
+        loa_pub_ = nh_.advertise<std_msgs::Int8>("/loa", 5);
         joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 2, &JoystickTeleop::joyCallback, this);
 
         timer_ = nh_.createTimer(ros::Duration(0.1), boost::bind(&JoystickTeleop::publish, this));
@@ -126,15 +126,15 @@ void JoystickTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
         // autonomy mode choice
         if (joy->buttons[stop_button_]) {
                 mode.data=0;
-                mode_pub_.publish(mode);
+                loa_pub_.publish(mode);
         }
         if (joy->buttons[teleop_button_]) {
                 mode.data=1;
-                mode_pub_.publish(mode);
+                loa_pub_.publish(mode);
         }
         if (joy->buttons[auto_button_]) {
                 mode.data=2;
-                mode_pub_.publish(mode);
+                loa_pub_.publish(mode);
         }
 
 }

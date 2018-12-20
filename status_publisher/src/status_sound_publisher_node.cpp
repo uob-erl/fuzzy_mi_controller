@@ -14,18 +14,15 @@ class StatusSoundPublisher
 {
 public:
 
-    StatusSoundPublisher();
-
+StatusSoundPublisher();
 
 private:
 
-    ros::NodeHandle nh_;
-    ros::Subscriber mode_sub_ ;
-    sound_play::SoundClient sound_client_ ;
+ros::NodeHandle nh_;
+ros::Subscriber loa_sub_;
+sound_play::SoundClient sound_client_;
 
-
-    void modeCallBack(const std_msgs::Int8::ConstPtr& mode);
-
+void loaCallBack(const std_msgs::Int8::ConstPtr& mode);
 
 };
 
@@ -33,68 +30,53 @@ private:
 // Constractor
 StatusSoundPublisher::StatusSoundPublisher()
 {
-
-
-
-    // Subscribers
-    mode_sub_ = nh_.subscribe<std_msgs::Int8>("/control_mode", 1 , &StatusSoundPublisher::modeCallBack, this);
-
-
-
+        // Subscribers
+        loa_sub_ = nh_.subscribe<std_msgs::Int8>("/loa", 1, &StatusSoundPublisher::loaCallBack, this);
 }
 
-
-
-
-
-// takes care of MODE
-void StatusSoundPublisher::modeCallBack(const std_msgs::Int8::ConstPtr& mode)
+// takes care of LOA
+void StatusSoundPublisher::loaCallBack(const std_msgs::Int8::ConstPtr& mode)
 {
-    if (mode->data == 0)
-    {
-        sound_client_.say("stoped");
-    }
+        if (mode->data == 0)
+        {
+                sound_client_.say("stoped");
+        }
 
-    else if (mode->data == 1)
-    {
-        sound_client_.playWaveFromPkg("variable_autonomy","auto_pilot.wav");
-        ros::Duration(1.2).sleep();
-        sound_client_.say("teleoperation");
-    }
+        else if (mode->data == 1)
+        {
+                sound_client_.playWaveFromPkg("variable_autonomy","auto_pilot.wav");
+                ros::Duration(1.2).sleep();
+                sound_client_.say("teleoperation");
+        }
 
-    else if (mode->data == 2)
-    {
-        sound_client_.playWaveFromPkg("variable_autonomy","auto_pilot.wav");
-        ros::Duration(1.2).sleep();
-        sound_client_.say("autonomy");
-    }
-
+        else if (mode->data == 2)
+        {
+                sound_client_.playWaveFromPkg("variable_autonomy","auto_pilot.wav");
+                ros::Duration(1.2).sleep();
+                sound_client_.say("autonomy");
+        }
 
 }
-
-
-
-
 
 
 int main(int argc, char** argv)
 {
 
-    ros::init(argc, argv, "status_publisher");
+        ros::init(argc, argv, "status_sound_publisher");
 
-    StatusSoundPublisher publish_sound_status;
-
-
-    ros::Rate loop_rate(10);
-
-    // The main Loop where everything is runing
-
-    while (ros::ok())
-    {
-        ros::spinOnce();
-        loop_rate.sleep();
-    }
+        StatusSoundPublisher publish_sound_status;
 
 
-    return 0;
+        ros::Rate loop_rate(10);
+
+        // The main Loop where everything is runing
+
+        while (ros::ok())
+        {
+                ros::spinOnce();
+                loop_rate.sleep();
+        }
+
+
+        return 0;
 }

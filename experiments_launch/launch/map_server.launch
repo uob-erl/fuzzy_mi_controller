@@ -1,8 +1,0 @@
-<launch>
-<!-- MAP server to load the predefined map -->
-  <arg name="map_file" default="$(find experiments_launch)/world/map.yaml" />
-
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" >
-    <remap from="/map" to="/map" />
-  </node>
-  </launch>

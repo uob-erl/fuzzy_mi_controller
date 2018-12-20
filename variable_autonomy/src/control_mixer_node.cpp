@@ -33,7 +33,7 @@ private:
     bool valid_loa_;
 
     ros::NodeHandle n_;
-    ros::Subscriber control_mode_sub_, vel_teleop_sub_, vel_nav_sub_ , mi_controller_sub_;
+    ros::Subscriber loa_sub_, vel_teleop_sub_, vel_nav_sub_ , mi_controller_sub_;
     ros::Publisher vel_for_robot_pub_ , cancelGoal_pub_ , loa_pub_, sound_pub_;
 
     geometry_msgs::Twist cmdvel_for_robot_;
@@ -53,9 +53,9 @@ ControlMixer::ControlMixer()
 
     vel_for_robot_pub_ = n_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
     cancelGoal_pub_ = n_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 1);
-    loa_pub_ = n_.advertise<std_msgs::Int8>("/control_mode",1);
+    loa_pub_ = n_.advertise<std_msgs::Int8>("/loa",1);
 
-    control_mode_sub_ = n_.subscribe("/control_mode", 5, &ControlMixer::loaCallback, this); // the LOA (from joystick)
+    loa_sub_ = n_.subscribe("/loa", 5, &ControlMixer::loaCallback, this); // the LOA (from joystick)
     vel_teleop_sub_ = n_.subscribe("/teleop/cmd_vel", 5, &ControlMixer::teleopCallback, this); // velocity coming from the teleoperation (Joystick)
     vel_nav_sub_ = n_.subscribe("/navigation/cmd_vel",5, &ControlMixer::navCallback, this); // velocity from the navigation e.g. move_base
     mi_controller_sub_ = n_.subscribe("/loa_change", 5, &ControlMixer::miCommandCallback, this); // MI controller LOA change command
@@ -186,4 +186,3 @@ int main(int argc, char *argv[])
     }
 
 }
-

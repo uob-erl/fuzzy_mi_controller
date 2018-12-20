@@ -35,7 +35,7 @@ private:
     std_msgs::Float64 linear_error_msg_, angular_error_msg_, vector_vel_error_msg_;
 
     ros::NodeHandle n_;
-    ros::Subscriber cmdvel_robot_sub_ , cmdvel_robot_optimal_sub_, control_mode_sub_;
+    ros::Subscriber cmdvel_robot_sub_ , cmdvel_robot_optimal_sub_, loa_sub_;
     ros::Publisher linear_error_pub_, angluar_error_pub_, loa_changed_pub_, vector_vel_error_pub_;
     ros::Timer compute_cost_;
 
@@ -51,7 +51,7 @@ ControlDataLogger::ControlDataLogger()
 
     cmdvel_robot_sub_ = n_.subscribe("/cmd_vel", 5 , &ControlDataLogger::robotCmdVelCallback, this); // current velocity of the robot.
     cmdvel_robot_optimal_sub_ = n_.subscribe("/cmd_vel_optimal", 5 , &ControlDataLogger::robotCmdVelOptimalCallback, this); // The optimal velocity e.g. perfect move_base
-    control_mode_sub_ = n_.subscribe("/control_mode", 5, &ControlDataLogger::loaCallback, this); // the LOA (from joystick)
+    loa_sub_ = n_.subscribe("/loa", 5, &ControlDataLogger::loaCallback, this); // the LOA (from joystick)
 
     linear_error_pub_ = n_.advertise<std_msgs::Float64>("/linear_vel_error", 1);
     angluar_error_pub_ = n_.advertise<std_msgs::Float64>("/angular_error", 1);
@@ -128,4 +128,3 @@ int main(int argc, char *argv[])
     }
 
 }
-

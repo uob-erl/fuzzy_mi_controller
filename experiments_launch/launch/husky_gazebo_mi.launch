@@ -15,7 +15,6 @@
 
   <!-- other parameters -->
   <arg name="map_file" default="$(find experiments_launch)/world/map.yaml"/>
-  <arg name="scan_topic" default="scan_final"/>
   <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
 
   <!-- launching gazebo stuff -->
@@ -31,22 +30,21 @@
     <arg name="yaw" value="$(arg yaw)"/>
   </include>
 
-  <!-- Filter laser scan to remove veiling effect and artifacts -->
-  <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
-    <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/> -->
-    <!-- <remap from="/scan_filtered" to="/scan_final" /> -->
-  <!-- </node> -->
-
   <!-- joy node for operator's joystick input-->
   <node respawn="true" pkg="joy" type="joy_node" name="joy_node">
     <param name="dev" type="string" value="/dev/input/js0"/>
     <param name="deadzone" value="0.15"/>
   </node>
+<!-- joy node for experimenter's joystick-->
+  <node respawn="true" pkg="joy" type="joy_node" name="joy2_node" > <!-- second joystick for experimenter logging -->
+      <param name="dev" type="string" value="/dev/input/js1" />
+      <remap from="/joy" to="/joy2" />
+     </node>
 
   <!-- teleoperation node -->
   <node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen">
     <param name="scale_linear" value="0.5"/>
-    <param name="scale_angular" value="0.8"/>
+    <param name="scale_angular" value="0.9"/>
   </node>
 
   <!-- cmd mixer for choosing autonomy mode or e.g. emergency stop if nav doesnt work good. (buttons for teleoperation - stop - autonomy mode) -->
@@ -71,15 +69,22 @@
       <param name="delta_yaw" value="3.14"/>
     </node>
 
-
   <!--- Run Move Base -->
   <include file="$(find husky_navigation)/launch/move_base.launch"/>
 
-  <!-- mode and status visualising node -->
+    <!-- mode, logging and status visualising nodes -->
   <node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
+  <node pkg="status_publisher" type="experiment_logger" name="experiment_logger" output="screen"/>
+  <node pkg="status_publisher" type="status_sound_publisher_node" name="status_sound_publisher_node" output="screen"/>>
+
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find experiments_launch)/rviz_cfg/rviz_husky.rviz"/>
 
   <!-- Hector trajectory server for keeping history and visualizing of all the paths visited -->
   <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>
+
+
+  <!-- Play sounds -->
+  <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/>
+
 
 </launch>
