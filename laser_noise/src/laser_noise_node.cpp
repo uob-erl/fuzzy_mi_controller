@@ -7,14 +7,11 @@
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 
 
-
-
-
 class LaserNoise
 {
 public:
-    LaserNoise()
-    {
+LaserNoise()
+{
         ros::NodeHandle private_nh("laser_noise");
         // Initialise the noise period and the rectacular area of noise bounded by the rectacle of which the 4 points are the corners.
         private_nh.param("noise_period", noise_period_, 30.0);
@@ -25,140 +22,145 @@ public:
 
         //randomGen_.seed(time(NULL)); // seed the generator
         laser_sub_ = n_.subscribe<sensor_msgs::LaserScan>("scan", 20, &LaserNoise::laserReadCallBAck, this);
-        pose_sub_ = n_.subscribe<geometry_msgs::PoseWithCovarianceStamped>("amcl_pose", 20, &LaserNoise::poseCallback, this);
+        pose_sub_ = n_.subscribe<geometry_msgs::PoseWithCovarianceStamped>("robot_pose", 20, &LaserNoise::poseCallback, this);
         reset_node_sub_ = n_.subscribe<std_msgs::Bool>("/noise_reset", 20, &LaserNoise::resetCallBack, this);
+        joy_triggered_noise_sub_ = n_.subscribe<std_msgs::Bool>("/joy_triggered_noise", 20, &LaserNoise::joyNoiseCallBack, this);
 
-        scan_pub_ = n_.advertise<sensor_msgs::LaserScan>("scan_with_noise", 20);
+        scan_with_noise_pub_ = n_.advertise<sensor_msgs::LaserScan>("scan_with_noise", 20);
         noise_active_pub_ = n_.advertise<std_msgs::Bool>("noise_active", 20);
 
-        timerNoise_ = n_.createTimer(ros::Duration(noise_period_) , &LaserNoise::timerNoiseCallback, this, false, false);
+        timer_noise_ = n_.createTimer(ros::Duration(noise_period_), &LaserNoise::timerNoiseCallback, this, false, false);
 
-        areaTriger_ = 0, timerTriger_ =0, timerActivated_= 0;
-    }
+        area_trigger_ = 0, timer_trigger_ =0, timer_activated_= 0, joy_noise_trigger_ = 0;
+}
 
 private:
 
-    //  boost::mt19937 randomGen_;
+//  boost::mt19937 randomGen_;
 
-    ros::NodeHandle n_;
-    ros::Subscriber laser_sub_ , pose_sub_ , reset_node_sub_;
-    ros::Publisher scan_pub_ , noise_active_pub_;
-    sensor_msgs::LaserScan addedNoiseScan_;
-    ros::Timer timerNoise_ ;
+ros::NodeHandle n_;
+ros::Subscriber laser_sub_, pose_sub_, reset_node_sub_, joy_triggered_noise_sub_;
+ros::Publisher scan_with_noise_pub_, noise_active_pub_;
+ros::Timer timer_noise_;
 
-    void laserReadCallBAck(const sensor_msgs::LaserScan::ConstPtr& msg);
-    double GaussianKernel(double mu,double sigma), uniformNoise_;
-    void poseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
-    void timerNoiseCallback(const ros::TimerEvent&);
-    void resetCallBack(const std_msgs::Bool::ConstPtr& msg);
+void laserReadCallBAck(const sensor_msgs::LaserScan::ConstPtr& scan_msg);
+double GaussianKernel(double mu,double sigma), uniformNoise_;
+void poseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
+void timerNoiseCallback(const ros::TimerEvent&);
+void resetCallBack(const std_msgs::Bool::ConstPtr& msg);
+void joyNoiseCallBack(const std_msgs::Bool::ConstPtr& msg);
 
-    bool areaTriger_ , timerTriger_, timerActivated_;
-    double noise_period_, x_max_, x_min_, y_max_, y_min_ ;
+bool area_trigger_, timer_trigger_, timer_activated_, joy_noise_trigger_;
+double noise_period_, x_max_, x_min_, y_max_, y_min_;
 
 };
 
-
+//
 void LaserNoise::resetCallBack(const std_msgs::Bool::ConstPtr& msg)
 {
-    if (msg->data == true)
-    {
-        timerTriger_ = 0;
-        timerNoise_.stop(); // needed to make sure the timer is not running in background
-    }
-
-}
-
-void LaserNoise::laserReadCallBAck(const sensor_msgs::LaserScan::ConstPtr& msg)
-
-{
-
-    double sigma;
-    double oldRange;
-    std_msgs::Bool noise;
-    addedNoiseScan_ = *msg ;
-
-
-    // Guassian noise added
-    if (areaTriger_ == 1 && timerTriger_ == 0)
-    {
-        for (int i=0; i < addedNoiseScan_.ranges.size() ; i++)
-
+        if (msg->data == true)
         {
-            sigma = addedNoiseScan_.ranges[i] * 0.2; // Proportional standard deviation
-            oldRange = addedNoiseScan_.ranges[i] ;
-            addedNoiseScan_.ranges[i] = addedNoiseScan_.ranges[i] + GaussianKernel(0,sigma);
-
-            if (addedNoiseScan_.ranges[i] > addedNoiseScan_.range_max)
-            { addedNoiseScan_.ranges[i] = addedNoiseScan_.range_max;}
-
-            else if (addedNoiseScan_.ranges[i] < addedNoiseScan_.range_min)
-            { addedNoiseScan_.ranges[i] = oldRange;}
+                timer_trigger_ = 0;
+                timer_noise_.stop(); // needed to make sure the timer is not running in background
         }
 
-        noise.data = true;
-        noise_active_pub_.publish(noise);
-    }
-
-
-    addedNoiseScan_.header.stamp = ros::Time::now();
-
-    scan_pub_.publish(addedNoiseScan_);
-
-
 }
 
-void LaserNoise::poseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
-
+// reads published by laser scans and adds noise to them
+void LaserNoise::laserReadCallBAck(const sensor_msgs::LaserScan::ConstPtr& scan_msg)
 {
-
-    if ( (msg->pose.pose.position.x < x_max_) && (msg->pose.pose.position.x > x_min_)
-         && (msg->pose.pose.position.y < y_max_) && (msg->pose.pose.position.y > y_min_) )
-
-    {
-        areaTriger_ =1;
-        timerNoise_.start();
-    }
-    else
-    {
-
-        areaTriger_ = 0;
+        double sigma;
+        double old_range;
         std_msgs::Bool noise;
-        noise.data = false;
-        noise_active_pub_.publish(noise);
-        //timerTriger_ = 0;
-    }
+        sensor_msgs::LaserScan laser_scan = *scan_msg;
+
+        // Guassian noise added
+        if ( (area_trigger_ == 1 || joy_noise_trigger_ == 1) && timer_trigger_ == 0)
+        {
+                for (int i=0; i < laser_scan.ranges.size(); i++)
+                {
+                        sigma = laser_scan.ranges[i] * 0.2; // Proportional standard deviation
+                        old_range = laser_scan.ranges[i];
+                        laser_scan.ranges[i] = laser_scan.ranges[i] + GaussianKernel(0,sigma);
+
+                        if (laser_scan.ranges[i] > laser_scan.range_max)
+                        { laser_scan.ranges[i] = laser_scan.range_max; }
+
+                        else if (laser_scan.ranges[i] < laser_scan.range_min)
+                        { laser_scan.ranges[i] = old_range; }
+                }
+                noise.data = true;
+                noise_active_pub_.publish(noise);
+        }
+        laser_scan.header.stamp = ros::Time::now();
+        scan_with_noise_pub_.publish(laser_scan);
 }
 
+// reads robot pose and if robot is inside a predifined area, activates noise trigger
+void LaserNoise::poseCallback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg)
+{
+        // if ( (msg->pose.pose.position.x < x_max_) && (msg->pose.pose.position.x > x_min_)
+        //      && (msg->pose.pose.position.y < y_max_) && (msg->pose.pose.position.y > y_min_) )
+        //
+        // {
+        //         area_trigger_ =1;
+        //         timer_noise_.start();
+        // }
+        // else
+        // {
+        //         area_trigger_ = 0;
+        //         std_msgs::Bool noise;
+        //         noise.data = false;
+        //         noise_active_pub_.publish(noise);
+        //         //timer_trigger_ = 0;
+        // }
+}
 
+// reads robot pose and if robot is inside a predifined area, activates noise trigger
+void LaserNoise::joyNoiseCallBack(const std_msgs::Bool::ConstPtr& msg)
+{
+        if (msg->data == true)
+        {
+                joy_noise_trigger_ = 1;
+                timer_noise_.start();
+        }
+        else
+        {
+                joy_noise_trigger_ = 0;
+                std_msgs::Bool noise;
+                noise.data = false;
+                noise_active_pub_.publish(noise);
+        }
+}
+
+// this is the timer deciding for how long the noise will be activated
 void LaserNoise::timerNoiseCallback(const ros::TimerEvent&)
 {
-    timerTriger_ = 1;
-    timerNoise_.stop();
-
-    ROS_INFO("TIMER ACTIVATED");
-
+        timer_trigger_ = 1;
+        timer_noise_.stop();
+        ROS_INFO("TIMER ACTIVATED");
 }
 
-// Utility for adding noise
+// Utility function for adding Guassian noise
 double LaserNoise::GaussianKernel(double mu,double sigma)
 {
-    // using Box-Muller transform to generate two independent standard normally disbributed normal variables
+        // using Box-Muller transform to generate two independent standard normally disbributed normal variables
 
-    double U = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
-    double V = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
-    double X = sqrt(-2.0 * ::log(U)) * cos( 2.0*M_PI * V);
-    //double Y = sqrt(-2.0 * ::log(U)) * sin( 2.0*M_PI * V); // the other indep. normal variable
-    // we'll just use X
-    // scale to our mu and sigma
-    X = sigma * X + mu;
-    return X;
+        double U = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
+        double V = (double)rand()/(double)RAND_MAX; // normalized uniform random variable
+        double X = sqrt(-2.0 * ::log(U)) * cos( 2.0*M_PI * V);
+        //double Y = sqrt(-2.0 * ::log(U)) * sin( 2.0*M_PI * V); // the other indep. normal variable
+        // we'll just use X
+        // scale to our mu and sigma
+        X = sigma * X + mu;
+        return X;
 }
 
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "laser_noise");
-    LaserNoise lasernoise;
+        ros::init(argc, argv, "laser_noise");
+        LaserNoise lasernoise;
 
-    ros::spin();
+        ros::spin();
 }

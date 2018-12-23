@@ -14,20 +14,21 @@ public:
         secondary_task_init_pub_ = nh_.advertise<std_msgs::Bool>("/secondary_task/started", 1);
         secondary_task_end_pub_ = nh_.advertise<std_msgs::Bool>("/secondary_task/ended", 1);
         laser_noise_reset_pub_ = nh_.advertise<std_msgs::Bool>("/laser_noise_reset", 1);
+        laser_noise_activate_pub_ = nh_.advertise<std_msgs::Bool>("/joy_triggered_noise", 1);
 
         // joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy", 2 , &ExperimentLogger::joyPublishedCallBack,this);
-        joy2_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy2", 2 , &ExperimentLogger::joy2PublishedCallBack,this);
+        joy_experimenter_sub_ = nh_.subscribe<sensor_msgs::Joy>("/joy_experimenter", 2 , &ExperimentLogger::joyExperimenterPublishedCallBack,this);
         clearCostmapSrv_ = nh_.serviceClient<std_srvs::Empty>("move_base/clear_costmaps") ;
     }
 
 private:
     ros::NodeHandle nh_;
-    ros::Publisher experiment_init_pub_ , secondary_task_init_pub_, secondary_task_end_pub_, laser_noise_reset_pub_;
-    ros::Subscriber joy_sub_ , joy2_sub_;
+    ros::Publisher experiment_init_pub_ , secondary_task_init_pub_, secondary_task_end_pub_, laser_noise_reset_pub_, laser_noise_activate_pub_;
+    ros::Subscriber joy_sub_ , joy_experimenter_sub_;
     ros::ServiceClient clearCostmapSrv_ ;
 
     // void joyPublishedCallBack(const sensor_msgs::Joy::ConstPtr& msg);
-    void joy2PublishedCallBack(const sensor_msgs::Joy::ConstPtr& msg);
+    void joyExperimenterPublishedCallBack(const sensor_msgs::Joy::ConstPtr& msg);
 };
 
 
@@ -36,9 +37,9 @@ private:
 //
 // }
 
-void ExperimentLogger::joy2PublishedCallBack(const sensor_msgs::Joy::ConstPtr& msg)
+void ExperimentLogger::joyExperimenterPublishedCallBack(const sensor_msgs::Joy::ConstPtr& msg)
 {
-    if (msg->buttons[7] == true) // denotes when the trials starts and when it finishes (START<!-- change this /jsX depending on your joystick port --> button)
+    if (msg->buttons[7] == true) // denotes when the trials starts and when it finishes (xbox START button)
     {
         std_msgs::Bool started;
         started.data = true;
@@ -66,7 +67,14 @@ void ExperimentLogger::joy2PublishedCallBack(const sensor_msgs::Joy::ConstPtr& m
         laser_noise_reset_pub_.publish(reset);
     }
 
-    if (msg->buttons[3] == true)  // Clears cost maps (Y)
+    if (msg->buttons[3] == true)  // triggers/activates laser noise (Y)
+    {
+        std_msgs::Bool joy_noise;
+        joy_noise.data = true;
+        laser_noise_activate_pub_.publish(joy_noise);
+    }
+
+    if (msg->buttons[6] == true)  // Clears cost maps (xbox BACK)
     {
         std_srvs::Empty srv ;
         clearCostmapSrv_.call(srv);

@@ -46,7 +46,7 @@
   <!-- teleoperation node -->
   <node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen">
     <param name="scale_linear" value="0.5"/>
-    <param name="scale_angular" value="0.8"/>
+    <param name="scale_angular" value="0.9"/>
   </node>
 
   <!-- cmd mixer for choosing autonomy mode or e.g. emergency stop if nav doesnt work good. (buttons for teleoperation - stop - autonomy mode) -->

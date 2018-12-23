@@ -8,10 +8,10 @@
   <arg name="urdf_extras" default=""/>
 
   <!-- spawning coordinates in gazebo -->
-    <arg name="x" default="9.04"/>
-    <arg name="y" default="-6.99"/>
-    <arg name="z" default="0"/>
-    <arg name="yaw" default="3.14"/>
+  <arg name="x" default="9.04"/>
+  <arg name="y" default="-6.99"/>
+  <arg name="z" default="0"/>
+  <arg name="yaw" default="3.14"/>
 
   <!-- other parameters -->
   <arg name="map_file" default="$(find experiments_launch)/world/map.yaml"/>
@@ -35,16 +35,17 @@
     <param name="dev" type="string" value="/dev/input/js0"/>
     <param name="deadzone" value="0.15"/>
   </node>
-<!-- joy node for experimenter's joystick-->
-  <node respawn="true" pkg="joy" type="joy_node" name="joy2_node" > <!-- second joystick for experimenter logging -->
-      <param name="dev" type="string" value="/dev/input/js1" />
-      <remap from="/joy" to="/joy2" />
-     </node>
+  <!-- joy node for experimenter's joystick-->
+  <node respawn="true" pkg="joy" type="joy_node" name="joy_experimenter_node">
+    <!-- second joystick for experimenter logging -->
+    <param name="dev" type="string" value="/dev/input/js1"/>
+    <remap from="/joy" to="/joy_experimenter"/>
+  </node>
 
   <!-- teleoperation node -->
   <node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen">
     <param name="scale_linear" value="0.5"/>
-    <param name="scale_angular" value="0.9"/>
+    <param name="scale_angular" value="0.8"/>
   </node>
 
   <!-- cmd mixer for choosing autonomy mode or e.g. emergency stop if nav doesnt work good. (buttons for teleoperation - stop - autonomy mode) -->
@@ -57,34 +58,33 @@
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
 
   <!--- Run AMCL -->
-  <!-- <include file="$(find husky_navigation)/launch/amcl.launch">
-    <arg name="scan_topic" value="$(arg scan_topic)"/>
-  </include> -->
+  <!-- <include file="$(find husky_navigation)/launch/amcl.launch"> <arg name="scan_topic" value="$(arg scan_topic)"/> </include> -->
 
   <!-- Fake/perfect localization -->
-    <node pkg="fake_localization" type="fake_localization" name="fake_localization">
-      <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
-      <param name="delta_x" value="-9.08"/>
-      <param name="delta_y" value="6.95"/>
-      <param name="delta_yaw" value="3.14"/>
-    </node>
+  <node pkg="fake_localization" type="fake_localization" name="fake_localization">
+    <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
+    <param name="delta_x" value="-9.08"/>
+    <param name="delta_y" value="6.95"/>
+    <param name="delta_yaw" value="3.14"/>
+  </node>
 
   <!--- Run Move Base -->
-  <include file="$(find husky_navigation)/launch/move_base.launch"/>
+  <include file="$(find experiments_launch)/launch/move_base_noise.launch"/>
 
-    <!-- mode, logging and status visualising nodes -->
+  <!-- Laser noise node to add some extra noise-->
+  <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="laser_noise">
+    <!-- <remap from="/scan" to="/scan_filtered" /> -->
+    <!-- <remap from="/scan_with_noise" to="/scan_final" /> -->
+  </node>
+
+  <!-- mode and status, logging and visualising nodes -->
   <node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
   <node pkg="status_publisher" type="experiment_logger" name="experiment_logger" output="screen"/>
-  <node pkg="status_publisher" type="status_sound_publisher_node" name="status_sound_publisher_node" output="screen"/>>
+  <node pkg="status_publisher" type="status_sound_publisher_node" name="status_sound_publisher_node" output="screen"/>
 
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find experiments_launch)/rviz_cfg/rviz_husky.rviz"/>
 
   <!-- Hector trajectory server for keeping history and visualizing of all the paths visited -->
   <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>
-
-
-  <!-- Play sounds -->
-  <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/>
-
 
 </launch>
