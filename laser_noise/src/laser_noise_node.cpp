@@ -23,11 +23,11 @@ LaserNoise()
         //randomGen_.seed(time(NULL)); // seed the generator
         laser_sub_ = n_.subscribe<sensor_msgs::LaserScan>("scan", 20, &LaserNoise::laserReadCallBAck, this);
         pose_sub_ = n_.subscribe<geometry_msgs::PoseWithCovarianceStamped>("robot_pose", 20, &LaserNoise::poseCallback, this);
-        reset_node_sub_ = n_.subscribe<std_msgs::Bool>("/noise_reset", 20, &LaserNoise::resetCallBack, this);
+        reset_node_sub_ = n_.subscribe<std_msgs::Bool>("/laser_noise_reset", 20, &LaserNoise::resetCallBack, this);
         joy_triggered_noise_sub_ = n_.subscribe<std_msgs::Bool>("/joy_triggered_noise", 20, &LaserNoise::joyNoiseCallBack, this);
 
         scan_with_noise_pub_ = n_.advertise<sensor_msgs::LaserScan>("scan_with_noise", 20);
-        noise_active_pub_ = n_.advertise<std_msgs::Bool>("noise_active", 20);
+        laser_noise_active_pub_ = n_.advertise<std_msgs::Bool>("laser_noise_active", 20);
 
         timer_noise_ = n_.createTimer(ros::Duration(noise_period_), &LaserNoise::timerNoiseCallback, this, false, false);
 
@@ -41,7 +41,7 @@ private:
 
 ros::NodeHandle n_;
 ros::Subscriber laser_sub_, pose_sub_, reset_node_sub_, joy_triggered_noise_sub_;
-ros::Publisher scan_with_noise_pub_, noise_active_pub_;
+ros::Publisher scan_with_noise_pub_, laser_noise_active_pub_;
 ros::Timer timer_noise_;
 
 void laserReadCallBAck(const sensor_msgs::LaserScan::ConstPtr& scan_msg);
@@ -91,7 +91,12 @@ void LaserNoise::laserReadCallBAck(const sensor_msgs::LaserScan::ConstPtr& scan_
                         { laser_scan.ranges[i] = old_range; }
                 }
                 noise.data = true;
-                noise_active_pub_.publish(noise);
+                laser_noise_active_pub_.publish(noise);
+        }
+        else
+        {
+                noise.data = false;
+                laser_noise_active_pub_.publish(noise);
         }
         laser_scan.header.stamp = ros::Time::now();
         scan_with_noise_pub_.publish(laser_scan);
@@ -112,7 +117,7 @@ void LaserNoise::poseCallback(const geometry_msgs::PoseWithCovarianceStamped::Co
         //         area_trigger_ = 0;
         //         std_msgs::Bool noise;
         //         noise.data = false;
-        //         noise_active_pub_.publish(noise);
+        //         laser_noise_active_pub_.publish(noise);
         //         //timer_trigger_ = 0;
         // }
 }
@@ -130,7 +135,7 @@ void LaserNoise::joyNoiseCallBack(const std_msgs::Bool::ConstPtr& msg)
                 joy_noise_trigger_ = 0;
                 std_msgs::Bool noise;
                 noise.data = false;
-                noise_active_pub_.publish(noise);
+                laser_noise_active_pub_.publish(noise);
         }
 }
 
