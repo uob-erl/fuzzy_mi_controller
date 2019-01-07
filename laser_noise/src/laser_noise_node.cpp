@@ -32,6 +32,7 @@ LaserNoise()
         timer_noise_ = n_.createTimer(ros::Duration(noise_period_), &LaserNoise::timerNoiseCallback, this, false, false);
 
         area_trigger_ = 0, timer_trigger_ =0, timer_activated_= 0, joy_noise_trigger_ = 0;
+        noise_scale_ = 0.3;
 }
 
 private:
@@ -51,7 +52,7 @@ void resetCallBack(const std_msgs::Bool::ConstPtr& msg);
 void joyNoiseCallBack(const std_msgs::Bool::ConstPtr& msg);
 
 bool area_trigger_, timer_trigger_, timer_activated_, joy_noise_trigger_;
-double noise_period_, x_max_, x_min_, y_max_, y_min_;
+double noise_period_, noise_scale_, x_max_, x_min_, y_max_, y_min_;
 
 };
 
@@ -79,7 +80,7 @@ void LaserNoise::laserReadCallBAck(const sensor_msgs::LaserScan::ConstPtr& scan_
         {
                 for (int i=0; i < laser_scan.ranges.size(); i++)
                 {
-                        sigma = laser_scan.ranges[i] * 0.2; // Proportional standard deviation
+                        sigma = laser_scan.ranges[i] * noise_scale_; // Proportional standard deviation
                         old_range = laser_scan.ranges[i];
                         laser_scan.ranges[i] = laser_scan.ranges[i] + GaussianKernel(0,sigma);
 

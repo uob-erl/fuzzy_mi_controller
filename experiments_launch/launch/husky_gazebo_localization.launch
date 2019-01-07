@@ -8,18 +8,24 @@
   <arg name="urdf_extras" default=""/>
 
   <!-- spawning coordinates in gazebo -->
-    <arg name="x" default="9.04"/>
-    <arg name="y" default="-6.99"/>
-    <arg name="z" default="0"/>
-    <arg name="yaw" default="3.14"/>
+  <!-- <arg name="x" default="9.04"/> <arg name="y" default="-6.99"/> <arg name="z" default="0"/> <arg name="yaw" default="3.14"/> -->
 
-  <!-- other parameters -->
-  <arg name="map_file" default="$(find experiments_launch)/world/map.yaml"/>
+  <!-- spawning coordinates in gazebo from training arena-->
+  <arg name="x" default="10.3"/>
+  <arg name="y" default="3.3"/>
+  <arg name="z" default="0"/>
+  <arg name="yaw" default="3.14"/>
+
+  <!-- other parameters and arena + map -->
+  <arg name="map_file" default="$(find experiments_launch)/world/training_map.yaml"/>
+  <arg name="world_name" default="$(find experiments_launch)/world/training_arena.world"/>
   <arg name="scan_topic" default="scan_final"/>
   <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
 
   <!-- launching gazebo stuff -->
-  <include file="$(find experiments_launch)/launch/gazebo_world.launch"/>
+  <include file="$(find experiments_launch)/launch/gazebo_world.launch">
+    <arg name="world_name" value="$(arg world_name)"/>
+  </include>
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
@@ -32,9 +38,8 @@
   </include>
 
   <!-- Filter laser scan to remove veiling effect and artifacts -->
-  <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
-    <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/> -->
-    <!-- <remap from="/scan_filtered" to="/scan_final" /> -->
+  <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter"> <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/> -->
+  <!-- <remap from="/scan_filtered" to="/scan_final" /> -->
   <!-- </node> -->
 
   <!-- joy node for operator's joystick input-->
@@ -59,18 +64,21 @@
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
 
   <!--- Run AMCL -->
-  <!-- <include file="$(find husky_navigation)/launch/amcl.launch">
-    <arg name="scan_topic" value="$(arg scan_topic)"/>
-  </include> -->
+  <!-- <include file="$(find husky_navigation)/launch/amcl.launch"> <arg name="scan_topic" value="$(arg scan_topic)"/> </include> -->
 
   <!-- Fake/perfect localization -->
-    <node pkg="fake_localization" type="fake_localization" name="fake_localization">
-      <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
-      <param name="delta_x" value="-9.08"/>
-      <param name="delta_y" value="6.95"/>
-      <param name="delta_yaw" value="3.14"/>
-    </node>
+  <node pkg="fake_localization" type="fake_localization" name="fake_localization">
+    <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
+    <!-- for mi arena-->
+    <!-- <param name="delta_x" value="-9.08"/>
+    <param name="delta_y" value="6.95"/>
+    <param name="delta_yaw" value="3.14"/> -->
 
+    <!-- for training arena-->
+    <param name="delta_x" value="-10.3"/>
+    <param name="delta_y" value="-3.3"/>
+    <param name="delta_yaw" value="3.14"/>
+  </node>
 
   <!--- Run Move Base -->
   <include file="$(find husky_navigation)/launch/move_base.launch"/>

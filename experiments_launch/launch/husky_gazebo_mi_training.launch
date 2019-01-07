@@ -8,8 +8,8 @@
   <arg name="urdf_extras" default=""/>
 
   <!-- spawning coordinates in gazebo -->
-  <arg name="x" default="9.04"/>
-  <arg name="y" default="-6.99"/>
+  <arg name="x" default="10.3"/>
+  <arg name="y" default="3.3"/>
   <arg name="z" default="0"/>
   <arg name="yaw" default="3.14"/>
 
@@ -18,8 +18,8 @@
   <arg name="scale_angular" default="0.8"/>
 
   <!-- other parameters -->
-  <arg name="map_file" default="$(find experiments_launch)/world/mi_map.yaml"/>
-  <arg name="world_name" default="$(find experiments_launch)/world/mi_arena.world"/>
+  <arg name="map_file" default="$(find experiments_launch)/world/training_map.yaml"/>
+  <arg name="world_name" default="$(find experiments_launch)/world/training_arena.world"/>
   <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
 
   <!-- launching gazebo stuff -->
@@ -70,8 +70,14 @@
   <!-- Fake/perfect localization -->
   <node pkg="fake_localization" type="fake_localization" name="fake_localization">
     <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
-    <param name="delta_x" value="-9.08"/>
+    <!-- for mi arena-->
+    <!-- <param name="delta_x" value="-9.08"/>
     <param name="delta_y" value="6.95"/>
+    <param name="delta_yaw" value="3.14"/> -->
+
+    <!-- for training arena-->
+    <param name="delta_x" value="-10.3"/>
+    <param name="delta_y" value="-3.3"/>
     <param name="delta_yaw" value="3.14"/>
   </node>
 
@@ -91,7 +97,7 @@
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find experiments_launch)/rviz_cfg/rviz_husky.rviz"/>
 
   <!-- Play sounds -->
-  <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/>
+<node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/>
 
   <!-- Hector trajectory server for keeping history and visualizing of all the paths visited -->
   <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>

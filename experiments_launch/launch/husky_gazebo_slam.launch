@@ -7,14 +7,25 @@
   <arg name="kinect_enabled" default="true"/>
   <arg name="urdf_extras" default=""/>
 
-<!-- spawning coordinates in gazebo -->
-  <arg name="x" default="9.04"/>
+  <!-- gazebo world/arena -->
+  <arg name="world_name" default="$(find experiments_launch)/world/training_arena.world"/>
+
+  <!-- spawning coordinates in gazebo fom mi arena-->
+  <!-- <arg name="x" default="9.04"/>
   <arg name="y" default="-6.99"/>
+  <arg name="z" default="0"/>
+  <arg name="yaw" default="3.14"/> -->
+
+  <!-- spawning coordinates in gazebo from training arena-->
+  <arg name="x" default="10.3"/>
+  <arg name="y" default="3.3"/>
   <arg name="z" default="0"/>
   <arg name="yaw" default="3.14"/>
 
   <!-- launching gazebo stuff -->
-  <include file="$(find experiments_launch)/launch/gazebo_world.launch"/>
+  <include file="$(find experiments_launch)/launch/gazebo_world.launch">
+    <arg name="world_name" value="$(arg world_name)"/>
+  </include>
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
@@ -28,9 +39,9 @@
 
   <!-- Filter laser scan to remove veiling effect and artifacts -->
   <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter"> -->
-    <!-- <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/> -->
-    <!-- <remap from="/scan_filtered" to="/scan_final" /> -->
-  <!-- </node>  -->
+  <!-- <rosparam command="load" file="$(find experiments_launch)/config/laser_filter.yaml"/> -->
+  <!-- <remap from="/scan_filtered" to="/scan_final" /> -->
+  <!-- </node> -->
 
   <!-- joy node for joystick input-->
   <node respawn="true" pkg="joy" type="joy_node" name="joy_node">
