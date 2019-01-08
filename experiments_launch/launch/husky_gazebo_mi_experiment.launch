@@ -82,6 +82,7 @@
   <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="laser_noise">
     <!-- <remap from="/scan" to="/scan_filtered" /> -->
     <!-- <remap from="/scan_with_noise" to="/scan_final" /> -->
+    <param name="noise_period" value="30.0"/>
   </node>
 
   <!-- mode and status, logging and visualising nodes -->

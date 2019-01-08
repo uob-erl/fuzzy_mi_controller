@@ -71,9 +71,7 @@
   <node pkg="fake_localization" type="fake_localization" name="fake_localization">
     <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
     <!-- for mi arena-->
-    <!-- <param name="delta_x" value="-9.08"/>
-    <param name="delta_y" value="6.95"/>
-    <param name="delta_yaw" value="3.14"/> -->
+    <!-- <param name="delta_x" value="-9.08"/> <param name="delta_y" value="6.95"/> <param name="delta_yaw" value="3.14"/> -->
 
     <!-- for training arena-->
     <param name="delta_x" value="-10.3"/>
@@ -88,6 +86,7 @@
   <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="laser_noise">
     <!-- <remap from="/scan" to="/scan_filtered" /> -->
     <!-- <remap from="/scan_with_noise" to="/scan_final" /> -->
+    <param name="noise_period" value="15.0"/>
   </node>
 
   <!-- mode and status, logging and visualising nodes -->
@@ -97,7 +96,7 @@
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find experiments_launch)/rviz_cfg/rviz_husky.rviz"/>
 
   <!-- Play sounds -->
-<node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/>
+  <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/>
 
   <!-- Hector trajectory server for keeping history and visualizing of all the paths visited -->
   <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>
