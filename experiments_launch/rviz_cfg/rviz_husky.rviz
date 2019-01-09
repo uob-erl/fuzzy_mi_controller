@@ -4,7 +4,6 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Camera1
         - /LaserScan1
       Splitter Ratio: 0.510066986
     Tree Height: 214
@@ -119,7 +118,7 @@ Visualization Manager:
       Name: LOA
       Normalize Range: true
       Queue Size: 2
-      Transport Hint: theora
+      Transport Hint: compressed
       Unreliable: false
       Value: true
     - Class: rviz/Image
@@ -131,7 +130,7 @@ Visualization Manager:
       Name: Autonomy
       Normalize Range: true
       Queue Size: 2
-      Transport Hint: theora
+      Transport Hint: compressed
       Unreliable: false
       Value: true
     - Angle Tolerance: 0.100000001
@@ -177,7 +176,7 @@ Visualization Manager:
       Name: Camera
       Normalize Range: true
       Queue Size: 2
-      Transport Hint: theora
+      Transport Hint: compressed
       Unreliable: false
       Value: true
     - Alpha: 1

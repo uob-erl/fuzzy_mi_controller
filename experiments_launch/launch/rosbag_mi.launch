@@ -1,23 +1,16 @@
 <launch>
 
   <!-- launch rosbag tool but record certain topics-->
-  <node
-    pkg="rosbag"
-    type="record"
-    name="rosbag"
+  <node pkg="rosbag" type="record" name="rosbag"
     args="-o /home/manolis/rosbags
-
-    /ai_switch_count
+/ai_switch_count
 /amcl_pose
-/camera/depth/camera_info
-/camera/depth/image_raw
-/camera/depth/points
 /camera/parameter_descriptions
 /camera/parameter_updates
 /camera/rgb/camera_info
-/camera/rgb/image_raw/theora
-/camera/rgb/image_raw/theora/parameter_descriptions
-/camera/rgb/image_raw/theora/parameter_updates
+/camera/rgb/image_raw/compressed
+/camera/rgb/image_raw/compressed/parameter_descriptions
+/camera/rgb/image_raw/compressed/parameter_updates
 /clicked_point
 /clock
 /cmd_vel_expert
@@ -55,7 +48,6 @@
 /expert_move_base/parameter_descriptions
 /expert_move_base/parameter_updates
 /expert_move_base/status
-
 /gazebo/link_states
 /gazebo/model_states
 /gazebo/parameter_descriptions
@@ -86,11 +78,9 @@
 /joy_triggered_noise
 /laser_noise_active
 /laser_noise_reset
-
 /loa
 /loa_change
 /loa_has_changed
-
 /map
 /map_metadata
 /map_updates
@@ -144,14 +134,12 @@
 /odometry/filtered
 /particlecloud
 /robot_pose
-
-/robot_status/loa/theora
-/robot_status/loa/theora/parameter_descriptions
-/robot_status/loa/theora/parameter_updates
-/robot_status/nav/theora
-/robot_status/nav/theora/parameter_descriptions
-/robot_status/nav/theora/parameter_updates
-
+/robot_status/loa/compressed
+/robot_status/loa/compressed/parameter_descriptions
+/robot_status/loa/compressed/parameter_updates
+/robot_status/nav/compressed
+/robot_status/nav/compressed/parameter_descriptions
+/robot_status/nav/compressed/parameter_updates
 /robotsound
 /rosout
 /rosout_agg
@@ -171,14 +159,6 @@
 /teleop/cmd_vel
 /tf
 /tf_static
-/trajectory
-
-
-  --------------------------
-                /vel_error
-                /vel_error_average
-                /loa_has_changed
-                /cmd_vel_optimal
- 	/>
-
+/trajectory"
+/>
 </launch>

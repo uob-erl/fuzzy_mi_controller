@@ -39,7 +39,7 @@ private:
     ros::Publisher linear_error_pub_, angluar_error_pub_, loa_changed_pub_, vector_vel_error_pub_;
     ros::Timer compute_cost_;
 
-    geometry_msgs::Twist cmdvel_robot_, cmdvel_optimal_;
+    geometry_msgs::Twist cmdvel_robot_, cmd_vel_expert_;
     std_msgs::Bool loa_changed_msg_;
 
 };
@@ -72,7 +72,7 @@ void ControlDataLogger::robotCmdVelCallback(const geometry_msgs::Twist::ConstPtr
 // logging expert/optimal cmdvel
 void ControlDataLogger::robotCmdVelOptimalCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
-    cmdvel_optimal_ = *msg;
+    cmd_vel_expert_ = *msg;
 }
 
 void ControlDataLogger::loaCallback(const std_msgs::Int8::ConstPtr& msg)
@@ -91,23 +91,23 @@ void ControlDataLogger::computeCostCallback(const ros::TimerEvent&)
 
     double linear_error_component, angular_error_component;
     //linear error
-    linear_error_ = cmdvel_optimal_.linear.x - cmdvel_robot_.linear.x;
+    linear_error_ = cmd_vel_expert_.linear.x - cmdvel_robot_.linear.x;
     linear_error_msg_.data = fabs(linear_error_);
     if (linear_error_msg_.data > 0.1)
        {linear_error_msg_.data = 0.1; }
     linear_error_pub_.publish(linear_error_msg_);
 
     // angular error
-    angular_error_ = fabs(cmdvel_optimal_.angular.z) - fabs(cmdvel_robot_.angular.z) ;
+    angular_error_ = fabs(cmd_vel_expert_.angular.z) - fabs(cmdvel_robot_.angular.z) ;
     angular_error_ = fabs(angular_error_);
     angular_error_msg_.data = angular_error_;
     angluar_error_pub_.publish(angular_error_msg_);
 
     // vector magnitute error
-    linear_error_component = fabs(cmdvel_optimal_.linear.x - cmdvel_robot_.linear.x);
+    linear_error_component = fabs(cmd_vel_expert_.linear.x - cmdvel_robot_.linear.x);
     if (linear_error_component > 0.1)
        {linear_error_component = 0.1; }
-    angular_error_component = fabs(fabs(cmdvel_optimal_.angular.z) - fabs(cmdvel_robot_.angular.z));
+    angular_error_component = fabs(fabs(cmd_vel_expert_.angular.z) - fabs(cmdvel_robot_.angular.z));
     vector_vel_error_msg_.data = sqrt( pow(linear_error_component, 2) + pow(angular_error_component, 2) );
     vector_vel_error_pub_.publish(vector_vel_error_msg_);
 

@@ -3,7 +3,6 @@
 
 <!-- launch rosbag tool but record certain topics-->
 <node pkg="rosbag" type="record" name="rosbag"
-
        args="-o /home/manolis/rosbags
                 /joy
                 /joy2
@@ -20,10 +19,10 @@
                 /amcl/parameter_descriptions
                 /amcl/parameter_updates
 		/particlecloud
-                /amcl_pose              
+                /amcl_pose
                 /tf
                 /tf_static
-		/trajectory	
+		/trajectory
 		/cam_compress/image/compressed
 		/cam_compress/image/compressed/parameter_descriptions
  		/cam_compress/image/compressed/parameter_updates
@@ -81,5 +80,4 @@
  		/diagnostics
 		/rosout
 		/rosout_agg" />
-
 </launch>

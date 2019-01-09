@@ -15,7 +15,7 @@
 
   <!-- joystick teleop speed scale -->
   <arg name="scale_linear" default="0.5"/>
-  <arg name="scale_angular" default="0.8"/>
+  <arg name="scale_angular" default="0.9"/>
 
   <!-- other parameters -->
   <arg name="map_file" default="$(find experiments_launch)/world/mi_map.yaml"/>
@@ -52,7 +52,7 @@
   <!-- teleoperation node -->
   <node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen">
     <param name="scale_linear" value="$(arg scale_linear)"/>
-    <param name="scale_angular" value="$(arg scale_linear)"/>
+    <param name="scale_angular" value="$(arg scale_angular)"/>
   </node>
 
   <!-- cmd mixer for choosing autonomy mode or e.g. emergency stop if nav doesnt work good. (buttons for teleoperation - stop - autonomy mode) -->
