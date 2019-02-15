@@ -1,5 +1,6 @@
-# experiment3_mi
-Repository for the Mixed-Inititive experiments.
+# Husky Mixed-Initative control
+Repository for the Mixed-Inititive control experiments with Husky robot. For older experiments (IJRR paper) see ijrr branch.
+The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work.
 
 # Installing ROS dependencies
 ```sh
@@ -36,17 +37,13 @@ In order to unistall, if make install was used, `cat install_manifest.txt | xarg
 
 4) The library is installed.
 
-# Running simulated experiment
-Assuming you have morse sim with ROS support installed.
+# Running simulated robot arena in Gazebo
+Assuming ROS and Gazebo are correctly installed and working, you can run a simulated Husky robot in a Search and Rescue scenario using the Mixed Initiative (MI) controller. The buttons for switching Level of Autonomy and for controlling the robot in teleoperation are mapped for a xbox controller.
 
-1) Run MORSE simulation via the morse_arena.py in experiments_launch->world (you will need also to change the path of the arena in the .py to reflect your repository file e.g. ~/hri_ws/src/fuzzy_mi_controller_repo/experiments_launch/world/exp2_arena/new_arena.blend). For example `morse run ~/hri_ws/src/fuzzy_mi_controller_repo/experiments_launch/world/morse_arena.py`.
-
-2) run on ROS the morse_arena.launch file in launch directory
-
+To run the simulated Husky and the MI control:
+```sh
+roslaunch experiments_launch husky_gazebo_mi_experiment.launch
+roslaunch experiments_launch mi_control.launch
+````
 # Running real world experiment
-
-1) run on ROS the robot_nav.launch file on the robot. This will run all the necessary nodes to control the robot via HI, teleop, automy.
-
-2) run on ROS the operator.launch file on the OCU computer.. This will run all the nodes to control the robot from the OCU (joystick needed).
-
-3) run on ROS the mi_control.launch file on the robot. This will enable the MI control to run on the robot.
+Docs and code soon
