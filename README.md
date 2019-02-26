@@ -23,7 +23,7 @@ The original fuzzy controller was made using the version 4.0 of fuzzylite librar
 ```sh
 sudo apt-get install checkinstall
 cd release
-sudo checkinstall --pkgname=fuzzylight6
+sudo checkinstall --pkgname=fuzzylite6
 ```
 
 Alternatively:
