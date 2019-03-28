@@ -13,9 +13,10 @@ sudo apt-get install ros-kinetic-hector-slam
 sudo apt-get install ros-kinetic-p2os-urdf
 ```
 
-# Installing fuzzylite 6 cpp library
-The original fuzzy controller was made using the version 4.0 of fuzzylite library which is now unavailable. Thus fuzzylite 6.0 can be used. WARNING: the fuzzy controller to be compiled with version 6 of fuzzylite was not tested in practice. Some code changes were neccessery for it to compile, hence the behavior might have changed (unlikely though!).
-1) Do a `cd` into the fuzzylite folder.
+# Installing fuzzylite 6 cpp library dependency
+For the controller to compile and run, the fuzzylite library is needed. The controller uses version 6 of fuzzylite. Please use the instructions below to install fuzzylite 6. 
+
+1) Once download from https://fuzzylite.com/ , do a `cd` into the fuzzylite folder.
 
 2)  run `./build.sh release`
 
