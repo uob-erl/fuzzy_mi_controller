@@ -5,6 +5,7 @@ The package "experiments_launch" contains all the top level .launch files. It is
 # Installing ROS dependencies
 ```sh
 sudo apt-get install ros-kinetic-gmapping
+sudo apt-get install ros-kinetic-robot-localization
 sudo apt-get install ros-kinetic-joy
 sudo apt-get install ros-kinetic-audio-common
 sudo apt-get install ros-kinetic-frontier-exploration
