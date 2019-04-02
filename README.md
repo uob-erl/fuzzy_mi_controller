@@ -1,11 +1,10 @@
 # Husky Mixed-Initative control
 Repository for the Mixed-Inititive control experiments with Husky robot. For older experiments (IJRR paper) see ijrr branch.
-The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work. In order to work, requires the ERL's forked package of husky drivers: https://github.com/uob-erl/husky
+The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work. In order to work, requires the ERL's forked package of husky drivers: https://github.com/uob-erl/husky Also it requires to clone and use the newest nav stack for kinetic: https://github.com/ros-planning/navigation/tree/kinetic-devel.
 
 # Installing ROS dependencies
 ```sh
 sudo apt-get install ros-kinetic-gmapping
-sudo apt-get install ros-kinetic-navigation
 sudo apt-get install ros-kinetic-joy
 sudo apt-get install ros-kinetic-audio-common
 sudo apt-get install ros-kinetic-frontier-exploration
