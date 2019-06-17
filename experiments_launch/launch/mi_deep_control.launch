@@ -1,0 +1,14 @@
+<launch>
+
+<!-- optimal move_base -->
+<include file="$(find experiments_launch)/launch/move_base_expert.launch"/>
+
+
+<!-- MI controller-->
+  <node respawn="true" pkg="variable_autonomy" type="mi_fuzzy_controller_deepgaze_node" name="mi_fuzzy_controller_deegaze" output="screen">
+    <remap from="/cmd_vel" to="/husky_velocity_controller/cmd_vel" />
+    <!-- <remap from="/cmd_vel_expert" to="/expert_planner/cmd_vel" /> -->
+  </node>
+
+
+</launch>

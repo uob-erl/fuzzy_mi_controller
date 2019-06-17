@@ -10,7 +10,7 @@
 
 <node pkg="move_base" type="move_base" respawn="true" name="expert_move_base" output="screen">
      <!-- <remap from="/cmd_vel" to="/expert_planner/cmd_vel" /> -->
-     <!-- <remap from="/move_base/status" to="/move_base_expert/status" /> -->
+     <remap from="/move_base/status" to="/expert_move_base/status" />
      <remap from="/cmd_vel" to="/cmd_vel_expert" />
 
      <param name="base_global_planner" value="$(arg base_global_planner)"/>

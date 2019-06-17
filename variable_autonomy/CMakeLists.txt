@@ -133,6 +133,7 @@ include_directories(
 add_executable(control_mixer_node src/control_mixer_node.cpp)
 add_executable(mi_threshold_controller_node src/mi_threshold_controller_node.cpp)
 add_executable(mi_fuzzy_controller_node src/mi_fuzzy_controller_node.cpp)
+add_executable(mi_fuzzy_controller_deepgaze_node src/mi_fuzzy_controller_deepgaze_node.cpp)
 add_executable(control_data_logger_node src/control_data_logger_node.cpp) 
 
 ## Add cmake target dependencies of the executable
@@ -143,6 +144,7 @@ add_executable(control_data_logger_node src/control_data_logger_node.cpp)
  target_link_libraries(control_mixer_node ${catkin_LIBRARIES})
 target_link_libraries(mi_threshold_controller_node ${catkin_LIBRARIES} fuzzylite)
 target_link_libraries(mi_fuzzy_controller_node ${catkin_LIBRARIES} fuzzylite)
+target_link_libraries(mi_fuzzy_controller_deepgaze_node ${catkin_LIBRARIES} fuzzylite)
 target_link_libraries(control_data_logger_node ${catkin_LIBRARIES})
 
 #############
