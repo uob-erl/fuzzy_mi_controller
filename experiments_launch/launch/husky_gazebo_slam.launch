@@ -8,7 +8,7 @@
   <arg name="urdf_extras" default=""/>
 
   <!-- gazebo world/arena -->
-  <arg name="world_name" default="$(find experiments_launch)/world/training_arena.world"/>
+  <arg name="world_name" default="$(find erl_arenas)/worlds/operator_intent_test.world"/>
 
   <!-- spawning coordinates in gazebo fom mi arena-->
   <!-- <arg name="x" default="9.04"/>
