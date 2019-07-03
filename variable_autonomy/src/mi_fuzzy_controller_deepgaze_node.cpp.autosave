@@ -286,12 +286,10 @@ int main(int argc, char *argv[])
 {
 
         // Fuzzylite stuff
-
         fl::Engine* engine = new fl::Engine;
         engine->setName("controller");
 
-        // define fuzzy sets and input variables
-
+        // define input variables and fuzzy sets
         fl::InputVariable* error = new fl::InputVariable;
         error->setName("error");
         error->setDescription("");
@@ -334,34 +332,8 @@ int main(int argc, char *argv[])
         cognitive_availability->addTerm(new fl::Trapezoid("available", 0.425, 0.750, 1.000, 1.000));
         engine->addInputVariable(cognitive_availability);
 
-//        fl::InputVariable* inputVariable1 = new fl::InputVariable;
-//        inputVariable1->setEnabled(true);
-//        inputVariable1->setName("error");
-//        inputVariable1->setRange(0.000, 0.100);
-//        inputVariable1->addTerm(new fl::Trapezoid("small", 0.000, 0.000, 0.035, 0.060));
-//        inputVariable1->addTerm(new fl::Trapezoid("medium", 0.045, 0.055, 0.065, 0.080));
-//        inputVariable1->addTerm(new fl::Trapezoid("large", 0.065, 0.085, 0.100, 0.100));
-//        engine->addInputVariable(inputVariable1);
 
-//        fl::InputVariable* inputVariable2 = new fl::InputVariable;
-//        inputVariable2->setEnabled(true);
-//        inputVariable2->setName("speed");
-//        inputVariable2->setRange(-0.400, 0.400);
-//        inputVariable2->addTerm(new fl::Trapezoid("reverse", -0.400, -0.400, -0.030, -0.020));
-//        inputVariable2->addTerm(new fl::Triangle("zero", -0.030, 0.000, 0.030));
-//        inputVariable2->addTerm(new fl::Trapezoid("forward", 0.020, 0.030, 0.400, 0.400));
-//        engine->addInputVariable(inputVariable2);
-
-//        fl::InputVariable* inputVariable3 = new fl::InputVariable;
-//        inputVariable3->setEnabled(true);
-//        inputVariable3->setName("cognitive_availability");
-//        inputVariable3->setRange(0.000, 5.000);
-//        inputVariable3->addTerm(new fl::Trapezoid("available", 0.000,  0.000, 3.000, 3.000));
-//        inputVariable3->addTerm(new fl::Trapezoid("not_available", 3.000, 4.000, 5.000, 5.000));
-//        engine->addInputVariable(inputVariable3);
-
-        // define output fuzzy sets an variables
-
+        // define output fuzzy sets and variables
         fl::OutputVariable* change_LOA = new fl::OutputVariable;
         change_LOA->setName("change_LOA");
         change_LOA->setDescription("");
@@ -377,20 +349,7 @@ int main(int argc, char *argv[])
         engine->addOutputVariable(change_LOA);
 
 
-//        fl::OutputVariable* outputVariable = new fl::OutputVariable;
-//        outputVariable->setEnabled(true);
-//        outputVariable->setName("change_LOA");
-//        outputVariable->setRange(-1.000, 1.000);
-//        outputVariable->fuzzyOutput()->setAggregation(new fl::Maximum); // the old setAccumulation is the new Aggregation?
-//        outputVariable->setDefuzzifier(new fl::LargestOfMaximum(200));
-//        outputVariable->setDefaultValue(fl::nan);
-
-//        outputVariable->addTerm(new fl::Triangle("change", 0.000, 1.000, 1.000));
-//        outputVariable->addTerm(new fl::Triangle("no_change", -1.000, -1.000, 0.000));
-//        engine->addOutputVariable(outputVariable);
-
         // define fuzzy rule base
-
         fl::RuleBlock* ruleBlock = new fl::RuleBlock;
         ruleBlock->setName("");
         ruleBlock->setDescription("");
@@ -408,22 +367,6 @@ int main(int argc, char *argv[])
         ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is large and speed is zero then change_LOA is change", engine));
         ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and speed is reverse and error is large then change_LOA is no_change", engine));
         engine->addRuleBlock(ruleBlock);
-
-//        fl::RuleBlock* ruleBlock = new fl::RuleBlock;
-//        ruleBlock->setEnabled(true);
-//        ruleBlock->setName("");
-//        ruleBlock->setConjunction(new fl::Minimum);
-//        ruleBlock->setDisjunction(new fl::Maximum);
-//        ruleBlock->setImplication(new fl::Minimum);
-//        // ruleBlock->setActivation(new fl::Threshold);This is now called implication operator
-//        ruleBlock->addRule(fl::Rule::parse("if error is small or error is medium then change_LOA is no_change", engine));
-//        ruleBlock->addRule(fl::Rule::parse("if error is large and speed is not reverse then change_LOA is change", engine));
-//        ruleBlock->addRule(fl::Rule::parse("if speed is reverse and error is large then change_LOA is no_change", engine));
-//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is not_available then change_LOA is change", engine));
-//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available then change_LOA is no_change", engine));
-//        engine->addRuleBlock(ruleBlock);
-
-        //-------------------------------------------------------------------///
 
 
         ros::init(argc, argv, "mixed_initiative_controller");
