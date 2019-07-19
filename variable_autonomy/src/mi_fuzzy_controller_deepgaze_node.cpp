@@ -328,10 +328,10 @@ int main(int argc, char *argv[])
         cognitive_availability->setName("cognitive_availability");
         cognitive_availability->setDescription("");
         cognitive_availability->setEnabled(true);
-        cognitive_availability->setRange(0.000, 1.000);
+        cognitive_availability->setRange(0.000, 50.000);
         cognitive_availability->setLockValueInRange(false);
-        cognitive_availability->addTerm(new fl::Trapezoid("unavailable", 0.000, 0.000, 0.250, 0.575));
-        cognitive_availability->addTerm(new fl::Trapezoid("available", 0.425, 0.750, 1.000, 1.000));
+        cognitive_availability->addTerm(new fl::Trapezoid("available", 0.000, 0.000, 20.000, 25.000));
+        cognitive_availability->addTerm(new fl::Trapezoid("unavailable", 20.000, 25.000, 50.000, 50.000));
         engine->addInputVariable(cognitive_availability);
 
 //        fl::InputVariable* inputVariable1 = new fl::InputVariable;
@@ -399,15 +399,55 @@ int main(int argc, char *argv[])
         ruleBlock->setDisjunction(new fl::Maximum);
         ruleBlock->setImplication(new fl::Minimum);
         ruleBlock->setActivation(new fl::General);
-        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is teleop then change_LOA is change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is auto then change_LOA is no_change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is auto and error is large then change_LOA is change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is small then change_LOA is no_change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is medium then change_LOA is no_change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is large and speed is forward then change_LOA is change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is large and speed is zero then change_LOA is change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and speed is reverse and error is large then change_LOA is no_change", engine));
+        ruleBlock->addRule(fl::Rule::parse("if error is small and speed is reverse and current_loa is teleop and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is reverse and current_loa is teleop and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is reverse and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is reverse and current_loa is auto and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is zero and current_loa is teleop and cognitive_availability is unavailable then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is zero and current_loa is teleop and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is zero and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is zero and current_loa is auto and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is forward and current_loa is teleop and cognitive_availability is unavailable then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is forward and current_loa is teleop and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is forward and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is small and speed is forward and current_loa is auto and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is reverse and current_loa is teleop and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is reverse and current_loa is teleop and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is reverse and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is reverse and current_loa is auto and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is zero and current_loa is teleop and cognitive_availability is unavailable then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is zero and current_loa is teleop and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is zero and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is zero and current_loa is auto and cognitive_availability is available then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is forward and current_loa is teleop and cognitive_availability is unavailable then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is forward and current_loa is teleop and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is forward and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is medium and speed is forward and current_loa is auto and cognitive_availability is available then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is reverse and current_loa is teleop and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is reverse and current_loa is teleop and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is reverse and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is reverse and current_loa is auto and cognitive_availability is available then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is zero and current_loa is teleop and cognitive_availability is unavailable then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is zero and current_loa is teleop and cognitive_availability is available then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is zero and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is zero and current_loa is auto and cognitive_availability is available then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is forward and current_loa is teleop and cognitive_availability is unavailable then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is forward and current_loa is teleop and cognitive_availability is available then change_LOA is change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is forward and current_loa is auto and cognitive_availability is unavailable then change_LOA is no_change", engine));
+	ruleBlock->addRule(fl::Rule::parse("if error is large and speed is forward and current_loa is auto and cognitive_availability is available then change_LOA is change", engine));
         engine->addRuleBlock(ruleBlock);
+
+//previous rule base -- without all combinations 
+//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is teleop then change_LOA is change", engine));
+//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is auto then change_LOA is no_change", engine));
+//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is auto and error is large then change_LOA is change", engine));
+//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is small then change_LOA is no_change", engine));
+//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is medium then change_LOA is no_change", engine));
+//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is large and speed is forward then change_LOA is change", engine));
+//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and error is large and speed is zero then change_LOA is change", engine));
+//        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is available and current_loa is teleop and speed is reverse and error is large then change_LOA is no_change", engine));
+
+
 
 //        fl::RuleBlock* ruleBlock = new fl::RuleBlock;
 //        ruleBlock->setEnabled(true);
