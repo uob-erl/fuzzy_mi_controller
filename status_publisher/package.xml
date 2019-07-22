@@ -44,11 +44,15 @@
   <build_depend>image_transport</build_depend>
   <build_depend>move_base</build_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>frontier_exploration</build_depend>
+  <build_depend>sound_play</build_depend>
+
   <run_depend>cv_bridge</run_depend>
   <run_depend>image_transport</run_depend>
   <run_depend>move_base</run_depend>
   <run_depend>roscpp</run_depend>
-
+  <run_depend>frontier_exploration</run_depend>
+  <run_depend>sound_play</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
