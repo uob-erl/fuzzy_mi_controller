@@ -14,7 +14,7 @@ LaserNoise()
 {
         ros::NodeHandle private_nh("laser_noise");
         // Initialise the noise period...
-        private_nh.param("noise_period", noise_period_, 30.0);
+        private_nh.param("noise_period", noise_period_, 15.0);
         // and the rectacular area of noise bounded by the rectacle of which the 4 points are the corners.
         private_nh.param("x_max", x_max_, 532.61);
         private_nh.param("x_min", x_min_, 531.10);
