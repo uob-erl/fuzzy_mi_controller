@@ -8,7 +8,7 @@
   <arg name="urdf_extras" default=""/>
 
   <!-- gazebo world/arena -->
-  <arg name="world_name" default="$(find experiments_launch)/world/training_arena.world"/>
+  <arg name="world_name" default="$(find experiments_launch)/world/cog_avail_arena.world"/>
 
   <!-- spawning coordinates in gazebo fom mi arena-->
   <!-- <arg name="x" default="9.04"/>
@@ -16,9 +16,9 @@
   <arg name="z" default="0"/>
   <arg name="yaw" default="3.14"/> -->
 
-  <!-- spawning coordinates in gazebo from training arena-->
-  <arg name="x" default="10.3"/>
-  <arg name="y" default="3.3"/>
+  <!-- spawning coordinates in gazebo -->
+  <arg name="x" default="9.04"/>
+  <arg name="y" default="-6.99"/>
   <arg name="z" default="0"/>
   <arg name="yaw" default="3.14"/>
 

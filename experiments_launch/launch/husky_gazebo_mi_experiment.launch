@@ -18,8 +18,8 @@
   <arg name="scale_angular" default="0.9"/>
 
   <!-- other parameters -->
-  <arg name="map_file" default="$(find experiments_launch)/world/mi_map.yaml"/>
-  <arg name="world_name" default="$(find experiments_launch)/world/mi_arena.world"/>
+  <arg name="map_file" default="$(find experiments_launch)/world/cog_avail_arena.yaml"/>
+  <arg name="world_name" default="$(find experiments_launch)/world/cog_avail_arena.world"/>
   <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
 
   <!-- launching gazebo stuff -->
