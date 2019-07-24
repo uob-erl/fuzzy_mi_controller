@@ -1,9 +1,10 @@
+
 # Husky Mixed-Initative control
 Repository for the Mixed-Inititive control experiments with robots (real or simulated). 
 
--For code and experiments in the IJRR paper use the ijrr branch.
--For code and experiments in the ICAR19 paper please use the icar19 branch
-
+ - For code and experiments in the IJRR paper use the ijrr branch.
+ - For code and experiments in the ICAR19 paper please use the icar19 branch
+ 
 The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work. In order to work, requires the ERL's forked package of husky drivers: https://github.com/uob-erl/husky_learning_exp . Also it requires to clone and use the newest nav stack for kinetic: https://github.com/ros-planning/navigation/tree/kinetic-devel.
 
 # Installing ROS dependencies
