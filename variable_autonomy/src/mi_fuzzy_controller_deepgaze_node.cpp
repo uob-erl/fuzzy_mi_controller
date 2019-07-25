@@ -403,7 +403,7 @@ int main(int argc, char *argv[])
         ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is teleop then change_LOA is change", engine));
         ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is auto then change_LOA is no_change", engine));
         ruleBlock->addRule(fl::Rule::parse("if error is small or error is medium then change_LOA is no_change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if error is large and speed is not reverse then change_LOA is change", engine));
+        ruleBlock->addRule(fl::Rule::parse("if error is very large and speed is not reverse then change_LOA is change", engine));
         ruleBlock->addRule(fl::Rule::parse("if speed is reverse and error is large then change_LOA is no_change", engine));
 
 
