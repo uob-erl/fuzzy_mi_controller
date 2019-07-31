@@ -330,8 +330,8 @@ int main(int argc, char *argv[])
         cognitive_availability->setEnabled(true);
         cognitive_availability->setRange(0.000, 50.000);
         cognitive_availability->setLockValueInRange(false);
-        cognitive_availability->addTerm(new fl::Trapezoid("available", 0.000, 0.000, 20.000, 25.000));
-        cognitive_availability->addTerm(new fl::Trapezoid("unavailable", 20.000, 25.000, 50.000, 50.000));
+        cognitive_availability->addTerm(new fl::Trapezoid("available", 0.000, 0.000, 18.000, 22.000));
+        cognitive_availability->addTerm(new fl::Trapezoid("unavailable", 18.000, 22.000, 50.000, 50.000));
         engine->addInputVariable(cognitive_availability);
 
 //        fl::InputVariable* inputVariable1 = new fl::InputVariable;
