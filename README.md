@@ -1,8 +1,12 @@
-# Husky Mixed-Initative control
-Repository for the Mixed-Inititive control experiments with Husky robot. For older experiments (IJRR paper) see ijrr branch.
-The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work. In order to work, requires the ERL's forked package of husky drivers: https://github.com/uob-erl/husky_learning_exp . Also it requires to clone and use the newest nav stack for kinetic: https://github.com/ros-planning/navigation/tree/kinetic-devel.
+# Human operator cognitive availability aware Mixed-Initiative control
+Repository for the cognitive availability aware Mixed-Inititive control experiments in paper "Human operator cognitive availability aware Mixed-Initiative control". The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work. 
+
+For the controller to work it requires head pose estimation via Deepgaze https://github.com/uob-erl/deepgaze_ros.git .
+Additionaly the experiments require the ERL's forked package of husky drivers: https://github.com/uob-erl/husky.git , branch "learning_effects_exp". ALastly, the experiments require the use of the newest nav stack for kinetic: https://github.com/ros-planning/navigation/tree/kinetic-devel.
 
 # Installing ROS dependencies
+Most ROS dependancies should be taken care of by rosdep install --from-paths src --ignore-src -r -y from your catkin workspace. If not:
+
 ```sh
 sudo apt-get install ros-kinetic-gmapping
 sudo apt-get install ros-kinetic-robot-localization
