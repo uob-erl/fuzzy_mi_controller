@@ -50,5 +50,11 @@ To run the simulated Husky and the MI control:
 roslaunch experiments_launch husky_gazebo_mi_experiment.launch
 roslaunch experiments_launch mi_control.launch
 ````
-# Running real world experiment
-Docs and code soon
+# Running Deepgaze
+
+We used two systems to run the experiment
+One that run the simulation and did the data logging. 
+And one that run the computer vision algorithm and the controller. 
+
+Follow instructions in deepgaze_ros repository and install deepgaze in the computer that will be running the computer vision software. 
+
