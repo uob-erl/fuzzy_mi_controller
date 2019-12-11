@@ -1,6 +1,7 @@
-# Husky Mixed-Initative control
-Repository for the Mixed-Inititive control experiments with Husky robot. For older experiments (IJRR paper) see ijrr branch.
-The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work. In order to work, requires the ERL's forked package of husky drivers: https://github.com/uob-erl/husky_learning_exp . Also it requires to clone and use the newest nav stack for kinetic: https://github.com/ros-planning/navigation/tree/kinetic-devel.
+# Human operator intent aware Mixed-Initative control
+Repository of the Human operator intent aware Mixed-Initative controller. The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work.
+
+For the controller to work it requires the operator intent Bayesian recursive filter https://github.com/uob-erl/operator_intent_packages. Additionaly the experiments require the ERL's forked package of husky drivers: https://github.com/uob-erl/husky.git , branch "learning_effects_exp". Lastly, the experiments require the use of the newest nav stack for kinetic: https://github.com/ros-planning/navigation/tree/kinetic-devel.
 
 # Installing ROS dependencies
 ```sh
