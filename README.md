@@ -2,7 +2,7 @@
 # Husky Mixed-Initative control
 Repository for the Mixed-Inititive control experiments with robots (real or simulated). 
 
- - For code and experiments in the RAS paper use the ras branch.
+ - For code and experiments in the JFR paper use the jfr branch.
  - For code and experiments in the ICHMS 2020 paper "Human operator cognitive availability aware Mixed-Initiative control" please use the "cognitive_availability" branch.
  
 The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work. In order to work, requires the ERL's forked package of husky drivers: https://github.com/uob-erl/husky_learning_exp . Also it requires to clone and use the newest nav stack for kinetic: https://github.com/ros-planning/navigation/tree/kinetic-devel.
