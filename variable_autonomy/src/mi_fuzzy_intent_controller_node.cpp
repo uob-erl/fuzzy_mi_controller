@@ -33,8 +33,9 @@ void robotVelExpertCallback(const geometry_msgs::Twist::ConstPtr& msg);
 void robotVelCallback(const geometry_msgs::Twist::ConstPtr& msg);
 void computeCostCallback(const ros::TimerEvent&);
 void goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& goalResult);
+void operatorIntentCB(const std_msgs::Int8::ConstPtr& msg);
 
-int loa_, number_timesteps_error_, count_timesteps_error_, number_timesteps_vel_, count_timesteps_vel_, previous_loa_;
+int loa_, number_timesteps_error_, count_timesteps_error_, number_timesteps_vel_, count_timesteps_vel_, previous_loa_ , operator_intent_;
 bool valid_loa_, mi_active_;
 double error_sum_, error_average_, velocity_sum_, vel_error_average_,  a_,vel_error_, vel_error_threshold_, decision_;
 std_msgs::Bool loa_change_, loa_changed_msg_;
@@ -42,7 +43,7 @@ std_msgs::Float64 error_average_msg_, vel_average_msg_;
 std_msgs::Int8 ai_switch_count_msg_;
 
 ros::NodeHandle n_;
-ros::Subscriber loa_sub_,vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_;
+ros::Subscriber loa_sub_,vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_, operator_intent_sub_;
 ros::Publisher loa_pub_, loa_change_pub_, goal_directed_motion_error_pub_, goal_directed_motion_error_average_pub_, ai_switch_count_pub_, loa_changed_pub_;
 ros::Timer compute_cost_;
 
@@ -79,7 +80,7 @@ MixedInitiativeController::MixedInitiativeController(fl::Engine* engine)
         loa_sub_ = n_.subscribe("/loa", 5, &MixedInitiativeController::loaCallback, this); // the current LOA
         vel_robot_sub_ = n_.subscribe("/cmd_vel", 5, &MixedInitiativeController::robotVelCallback, this); // current velocity of the robot.
         vel_robot_expert_sub_ = n_.subscribe("/cmd_vel_expert", 5, &MixedInitiativeController::robotVelExpertCallback, this); // The expert suggested velocity e.g. perfect move_base
-
+        operator_intent_sub_ = n_.subscribe("/operator_intent", 5, &MixedInitiativeController::operatorIntentCB, this);
         // The ros Duration controls the period in sec. that the cost will compute. currently 10hz
         compute_cost_ = n_.createTimer(ros::Duration(0.2), &MixedInitiativeController::computeCostCallback, this);
 
@@ -88,6 +89,11 @@ MixedInitiativeController::MixedInitiativeController(fl::Engine* engine)
 
 }
 
+void MixedInitiativeController::operatorIntentCB(const std_msgs::Int8::ConstPtr& msg)
+{
+        operator_intent_ = msg->data;
+
+}
 void MixedInitiativeController::robotVelCallback(const geometry_msgs::Twist::ConstPtr& msg)
 {
         cmd_vel_robot_ = *msg;
@@ -99,46 +105,46 @@ void MixedInitiativeController::robotVelExpertCallback(const geometry_msgs::Twis
         cmd_vel_expert_ = *msg;
 }
 
-// takes the goal result/status from the expert move_base
+// takes the goal result/status from the expert move_base THIS DOESNOT WORK AS EXPECTED
 void MixedInitiativeController::goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& msg)
 {
 
-        if (!msg->status_list.empty())
-        {
-                actionlib_msgs::GoalStatus goalStatus;
-                goalStatus = msg->status_list[0];
+//        if (!msg->status_list.empty())
+//        {
+//                actionlib_msgs::GoalStatus goalStatus;
+//                goalStatus = msg->status_list[0];
 
 
-                if (goalStatus.status == 1)
-                {
-                        ROS_INFO("active goal in progress");
-                        mi_active_ = 1;
-                }
+//                if (goalStatus.status == 1)
+//                {
+//                        ROS_INFO("active goal in progress");
+//                        mi_active_ = 1;
+//                }
 
-                else if (goalStatus.status == 3)
-                {
-                        ROS_INFO("robot moved succefuly to goal");
-                        mi_active_ = 0;
-                }
+//                else if (goalStatus.status == 3)
+//                {
+//                        ROS_INFO("robot moved succefuly to goal");
+//                        mi_active_ = 0;
+//                }
 
-                else if (goalStatus.status == 2 )
-                {
-                        ROS_INFO("Goal was cancelled");
-                        mi_active_ = 0;
-                }
+//                else if (goalStatus.status == 2 )
+//                {
+//                        ROS_INFO("Goal was cancelled");
+//                        mi_active_ = 0;
+//                }
 
-                else if (goalStatus.status == 4 )
-                {
-                        ROS_INFO("Goal was aborded");
-                        mi_active_ = 0;
+//                else if (goalStatus.status == 4 )
+//                {
+//                        ROS_INFO("Goal was aborded");
+//                        mi_active_ = 0;
 
-                }
+//                }
 
-                else {
-                        ROS_INFO("What happened? Status Something else?? Check expert move base status topic for code denoting status");
-                        mi_active_ = 0;
-                }
-        }
+//                else {
+//                        ROS_INFO("What happened? Status Something else?? Check expert move base status topic for code denoting status");
+//                        mi_active_ = 0;
+//                }
+//        }
 }
 
 void MixedInitiativeController::loaCallback(const std_msgs::Int8::ConstPtr& msg)
@@ -188,7 +194,7 @@ void MixedInitiativeController::loaCallback(const std_msgs::Int8::ConstPtr& msg)
 void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
 {
 
-        if (mi_active_ = 1)
+        if (1) // for now we want to always enter that loop. In the futute should check in operator intent node is active.
         {
                 vel_error_ = cmd_vel_expert_.linear.x - cmd_vel_robot_.linear.x;
                 vel_error_ = fabs(vel_error_);
@@ -226,6 +232,8 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
                         error_average_ = a_ * vel_error_ + (1-a_) * error_average_;
                         engine_->setInputValue("error", error_average_);
                         engine_->setInputValue("speed", cmd_vel_robot_.linear.x);
+                        engine_->setInputValue("current_loa",loa_);
+                        engine_->setInputValue("task", operator_intent_);
                         engine_->process();
                         decision_ = engine_->getOutputValue("change_LOA");
                         FL_LOG("error = " << fl::Op::str(error_average_) );
@@ -272,46 +280,67 @@ int main(int argc, char *argv[])
         fl::Engine* engine = new fl::Engine;
         engine->setName("controller");
 
-        fl::InputVariable* inputVariable1 = new fl::InputVariable;
-        inputVariable1->setEnabled(true);
-        inputVariable1->setName("error");
-        inputVariable1->setRange(0.000, 0.100);
-        inputVariable1->addTerm(new fl::Trapezoid("small", 0.000, 0.000, 0.035, 0.060));
-        inputVariable1->addTerm(new fl::Trapezoid("medium", 0.045, 0.055, 0.065, 0.080));
-        inputVariable1->addTerm(new fl::Trapezoid("large", 0.065, 0.085, 0.100, 0.100));
-        engine->addInputVariable(inputVariable1);
+        fl::InputVariable* error = new fl::InputVariable;
+        error->setEnabled(true);
+        error->setName("error");
+        error->setRange(0.000, 0.100);
+        error->addTerm(new fl::Trapezoid("small", 0.000, 0.000, 0.035, 0.060));
+        error->addTerm(new fl::Trapezoid("medium", 0.045, 0.055, 0.065, 0.080));
+        error->addTerm(new fl::Trapezoid("large", 0.065, 0.085, 0.100, 0.100));
+        engine->addInputVariable(error);
 
-        fl::InputVariable* inputVariable2 = new fl::InputVariable;
-        inputVariable2->setEnabled(true);
-        inputVariable2->setName("speed");
-        inputVariable2->setRange(-0.400, 0.400);
-        inputVariable2->addTerm(new fl::Trapezoid("reverse", -0.400, -0.400, -0.030, -0.020));
-        inputVariable2->addTerm(new fl::Triangle("zero", -0.030, 0.000, 0.030));
-        inputVariable2->addTerm(new fl::Trapezoid("forward", 0.020, 0.030, 0.400, 0.400));
-        engine->addInputVariable(inputVariable2);
+        fl::InputVariable* speed = new fl::InputVariable;
+        speed->setEnabled(true);
+        speed->setName("speed");
+        speed->setRange(-0.400, 0.400);
+        speed->addTerm(new fl::Trapezoid("reverse", -0.400, -0.400, -0.030, -0.020));
+        speed->addTerm(new fl::Triangle("zero", -0.030, 0.000, 0.030));
+        speed->addTerm(new fl::Trapezoid("forward", 0.020, 0.030, 0.400, 0.400));
+        engine->addInputVariable(speed);
 
-        fl::OutputVariable* outputVariable = new fl::OutputVariable;
-        outputVariable->setEnabled(true);
-        outputVariable->setName("change_LOA");
-        outputVariable->setRange(-1.000, 1.000);
-        outputVariable->fuzzyOutput()->setAggregation(new fl::Maximum); // the old setAccumulation is the new Aggregation?
-        outputVariable->setDefuzzifier(new fl::LargestOfMaximum(200));
-        outputVariable->setDefaultValue(fl::nan);
+        fl::InputVariable* current_loa = new fl::InputVariable;
+        current_loa->setName("current_loa");
+        current_loa->setDescription("");
+        current_loa->setEnabled(true);
+        current_loa->setRange(0.000, 2.920);
+        current_loa->setLockValueInRange(false);
+        current_loa->addTerm(new fl::Rectangle("teleop", 0.900, 1.100));
+        current_loa->addTerm(new fl::Rectangle("auto", 1.900, 2.100));
+        engine->addInputVariable(current_loa);
 
-        outputVariable->addTerm(new fl::Triangle("change", 0.000, 1.000, 1.000));
-        outputVariable->addTerm(new fl::Triangle("no_change", -1.000, -1.000, 0.000));
-        engine->addOutputVariable(outputVariable);
+        fl::InputVariable* task = new fl::InputVariable;
+        task->setName("task");
+        task->setDescription("");
+        task->setEnabled(true);
+        task->setRange(-0.200, 1.200);
+        task->setLockValueInRange(false);
+        task->addTerm(new fl::Rectangle("navigating", -0.100, 0.100));
+        task->addTerm(new fl::Rectangle("exploring", 0.900, 1.100));
+        engine->addInputVariable(task);
+
+        fl::OutputVariable* change_LOA = new fl::OutputVariable;
+        change_LOA->setEnabled(true);
+        change_LOA->setName("change_LOA");
+        change_LOA->setRange(-1.000, 1.000);
+        change_LOA->fuzzyOutput()->setAggregation(new fl::Maximum); // the old setAccumulation is the new Aggregation?
+        change_LOA->setDefuzzifier(new fl::LargestOfMaximum(200));
+        change_LOA->setDefaultValue(fl::nan);
+        change_LOA->addTerm(new fl::Triangle("change", 0.000, 1.000, 1.000));
+        change_LOA->addTerm(new fl::Triangle("no_change", -1.000, -1.000, 0.000));
+        engine->addOutputVariable(change_LOA);
 
         fl::RuleBlock* ruleBlock = new fl::RuleBlock;
-        ruleBlock->setEnabled(true);
         ruleBlock->setName("");
+        ruleBlock->setDescription("");
+        ruleBlock->setEnabled(true);
         ruleBlock->setConjunction(new fl::Minimum);
         ruleBlock->setDisjunction(new fl::Maximum);
         ruleBlock->setImplication(new fl::Minimum);
-        // ruleBlock->setActivation(new fl::Threshold);This is now called implication operator
+        ruleBlock->setActivation(new fl::First(1, 0.000));
+        ruleBlock->addRule(fl::Rule::parse("if current_loa is teleop and task is exploring then change_LOA is no_change", engine));
         ruleBlock->addRule(fl::Rule::parse("if error is small or error is medium then change_LOA is no_change", engine));
-        ruleBlock->addRule(fl::Rule::parse("if error is large and speed is not reverse then change_LOA is change", engine));
         ruleBlock->addRule(fl::Rule::parse("if speed is reverse and error is large then change_LOA is no_change", engine));
+        ruleBlock->addRule(fl::Rule::parse("if error is large and speed is not reverse then change_LOA is change", engine));
         engine->addRuleBlock(ruleBlock);
 
         //-------------------------------------------------------------------///
