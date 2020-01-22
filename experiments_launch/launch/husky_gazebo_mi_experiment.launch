@@ -92,7 +92,7 @@
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find experiments_launch)/rviz_cfg/rviz_husky.rviz"/>
 
   <!-- Play sounds -->
-  <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/>
+  <!--node pkg="sound_play" type="soundplay_node.py" name="soundplay_node" output="screen"/-->
 
   <!-- Hector trajectory server for keeping history and visualizing of all the paths visited -->
   <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>
