@@ -50,7 +50,7 @@
   </node>
 
   <!-- teleoperation node -->
-  <node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen">
+  <node pkg="teleop_loa" type="teleop_loa" name="teleop_loa" output="screen">
     <param name="scale_linear" value="$(arg scale_linear)"/>
     <param name="scale_angular" value="$(arg scale_angular)"/>
   </node>

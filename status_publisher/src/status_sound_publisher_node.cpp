@@ -1,6 +1,6 @@
 ﻿
 #include <ros/ros.h>
-#include <std_msgs/Int8.h>
+#include <std_msgs/String.h>
 #include <sound_play/sound_play.h>
 
 
@@ -22,7 +22,7 @@ ros::NodeHandle nh_;
 ros::Subscriber loa_sub_;
 sound_play::SoundClient sound_client_;
 
-void loaCallBack(const std_msgs::Int8::ConstPtr& mode);
+void loaCallBack(const std_msgs::String::ConstPtr& mode);
 
 };
 
@@ -31,25 +31,25 @@ void loaCallBack(const std_msgs::Int8::ConstPtr& mode);
 StatusSoundPublisher::StatusSoundPublisher()
 {
         // Subscribers
-        loa_sub_ = nh_.subscribe<std_msgs::Int8>("/loa", 1, &StatusSoundPublisher::loaCallBack, this);
+        loa_sub_ = nh_.subscribe<std_msgs::String>("/loa", 1, &StatusSoundPublisher::loaCallBack, this);
 }
 
 // takes care of LOA
-void StatusSoundPublisher::loaCallBack(const std_msgs::Int8::ConstPtr& mode)
+void StatusSoundPublisher::loaCallBack(const std_msgs::String::ConstPtr& mode)
 {
-        if (mode->data == 0)
+        if (mode->data == "Stop")
         {
                 sound_client_.say("stoped");
         }
 
-        else if (mode->data == 1)
+        else if (mode->data == "Teleoparation")
         {
                 sound_client_.playWaveFromPkg("variable_autonomy","auto_pilot.wav");
                 ros::Duration(1.2).sleep();
                 sound_client_.say("teleoperation");
         }
 
-        else if (mode->data == 2)
+        else if (mode->data == "Autonomy")
         {
                 sound_client_.playWaveFromPkg("variable_autonomy","auto_pilot.wav");
                 ros::Duration(1.2).sleep();
