@@ -108,43 +108,43 @@ void MixedInitiativeController::robotVelExpertCallback(const geometry_msgs::Twis
 // takes the goal result/status from the expert move_base THIS DOESNOT WORK AS EXPECTED
 void MixedInitiativeController::goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& msg)
 {
-
-//        if (!msg->status_list.empty())
-//        {
-//                actionlib_msgs::GoalStatus goalStatus;
-//                goalStatus = msg->status_list[0];
-
-
-//                if (goalStatus.status == 1)
-//                {
-//                        ROS_INFO("active goal in progress");
-//                        mi_active_ = 1;
-//                }
-
-//                else if (goalStatus.status == 3)
-//                {
-//                        ROS_INFO("robot moved succefuly to goal");
-//                        mi_active_ = 0;
-//                }
-
-//                else if (goalStatus.status == 2 )
-//                {
-//                        ROS_INFO("Goal was cancelled");
-//                        mi_active_ = 0;
-//                }
-
-//                else if (goalStatus.status == 4 )
-//                {
-//                        ROS_INFO("Goal was aborded");
-//                        mi_active_ = 0;
-
-//                }
-
-//                else {
-//                        ROS_INFO("What happened? Status Something else?? Check expert move base status topic for code denoting status");
-//                        mi_active_ = 0;
-//                }
-//        }
+       // 
+       // if (!msg->status_list.empty())
+       // {
+       //         actionlib_msgs::GoalStatus goalStatus;
+       //         goalStatus = msg->status_list[0];
+       //
+       //
+       //         if (goalStatus.status == 1)
+       //         {
+       //                 ROS_INFO("active goal in progress");
+       //                 mi_active_ = 1;
+       //         }
+       //
+       //         else if (goalStatus.status == 3)
+       //         {
+       //                 ROS_INFO("robot moved succefuly to goal");
+       //                 mi_active_ = 0;
+       //         }
+       //
+       //         else if (goalStatus.status == 2 )
+       //         {
+       //                 ROS_INFO("Goal was cancelled");
+       //                 mi_active_ = 0;
+       //         }
+       //
+       //         else if (goalStatus.status == 4 )
+       //         {
+       //                 ROS_INFO("Goal was aborded");
+       //                 mi_active_ = 0;
+       //
+       //         }
+       //
+       //         else {
+       //                 ROS_INFO("What happened? Status Something else?? Check expert move base status topic for code denoting status");
+       //                 mi_active_ = 0;
+       //         }
+       // }
 }
 
 void MixedInitiativeController::loaCallback(const std_msgs::Int8::ConstPtr& msg)
