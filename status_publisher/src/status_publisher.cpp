@@ -8,7 +8,6 @@
 #include <actionlib_msgs/GoalStatusArray.h>
 #include <actionlib_msgs/GoalStatus.h>
 #include <move_base_msgs/MoveBaseActionResult.h>
-#include <frontier_exploration/ExploreTaskActionResult.h>
 #include <ros/package.h>
 #include <string.h>
 
@@ -25,22 +24,21 @@ private:
 ros::NodeHandle nh_;
 image_transport::ImageTransport it_;
 image_transport::Publisher loa_pub_, nav_status_pub_;
-ros::Subscriber loa_sub_, nav_status_sub_, nav_result_sub_, exploration_status_sub_, exploration_result_sub_;
+ros::Subscriber loa_sub_, nav_status_sub_, nav_result_sub_ ;
 ros::Timer timerPubStatus_;
 
-int exploration_status_, nav_status_, exploration_result_, nav_result_;
-std::string pathTeleop_, pathAuto_,pathStop_, pathCanceled_, pathExplorationDone_;
-std::string pathActive_, pathSucceeded_,pathAborted_, pathExploring_;
-cv_bridge::CvImage cvAuto_, cvTeleop_, cvStop_, cvCanceled_, cvExplorationDone_;       // intermediate cv_bridge images
-cv_bridge::CvImage cvActive_, cvSucceeded_, cvAborted_, cvExploring_;
-sensor_msgs::Image rosImgAuto_, rosImgTeleop_, rosImgStop_, rosImgCanceled_, rosImgExplorationDone_;       // ROS msg images
-sensor_msgs::Image rosImgActive_, rosImgSucceeded_, rosImgAborted_, rosImgExploring_;
+int nav_status_, nav_result_;
+std::string pathTeleop_, pathAuto_,pathStop_, pathCanceled_;
+std::string pathActive_, pathSucceeded_,pathAborted_;
+cv_bridge::CvImage cvAuto_, cvTeleop_, cvStop_, cvCanceled_;       // intermediate cv_bridge images
+cv_bridge::CvImage cvActive_, cvSucceeded_, cvAborted_;
+sensor_msgs::Image rosImgAuto_, rosImgTeleop_, rosImgStop_, rosImgCanceled_;
+     // ROS msg images
+sensor_msgs::Image rosImgActive_, rosImgSucceeded_, rosImgAborted_;
 
 void loaCallBack(const std_msgs::Int8::ConstPtr& loa);
 void nav_statusCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& nav_status);
 void nav_resultCallBack(const move_base_msgs::MoveBaseActionResult::ConstPtr& nav_result);
-void exploration_statusCallback(const actionlib_msgs::GoalStatusArray::ConstPtr& exploration_status);
-void exploration_resultCallback(const frontier_exploration::ExploreTaskActionResult::ConstPtr& exploration_result);
 void timerPubStatusCallback(const ros::TimerEvent&);
 
 
@@ -51,8 +49,7 @@ void timerPubStatusCallback(const ros::TimerEvent&);
 StatusPublisher::StatusPublisher() : it_(nh_)
 {
         // Initialise status/result values
-        exploration_status_ = -1;
-        exploration_result_ = -1;
+
         nav_status_ = -1;
         nav_result_ = -1;
 
@@ -62,10 +59,6 @@ StatusPublisher::StatusPublisher() : it_(nh_)
                                                                           &StatusPublisher::nav_statusCallBack, this);
         nav_result_sub_ = nh_.subscribe<move_base_msgs::MoveBaseActionResult>("/move_base/result", 1,
                                                                               &StatusPublisher::nav_resultCallBack,this);
-        exploration_status_sub_ = nh_.subscribe<actionlib_msgs::GoalStatusArray>("/explore_server/status",1,
-                                                                                 &StatusPublisher::exploration_statusCallback, this);
-        exploration_result_sub_ = nh_.subscribe<frontier_exploration::ExploreTaskActionResult>("/explore_server/result", 1,
-                                                                                               &StatusPublisher::exploration_resultCallback,this);
 
         // publishers
         loa_pub_ = it_.advertise("/robot_status/loa", 1, true);
@@ -91,12 +84,7 @@ StatusPublisher::StatusPublisher() : it_(nh_)
         pathAborted_ = ros::package::getPath("status_publisher");
         pathAborted_.append("/images/aborted.png");
 
-        pathExploring_ = ros::package::getPath("status_publisher");
-        pathExploring_.append("/images/exploring.png");
-
-        pathExplorationDone_ = ros::package::getPath("status_publisher");
-        pathExplorationDone_.append("/images/exp_done.png");
-
+   
         pathCanceled_ = ros::package::getPath("status_publisher");
         pathCanceled_.append("/images/canceled.png");
 
@@ -120,11 +108,6 @@ StatusPublisher::StatusPublisher() : it_(nh_)
         else if ( cv::imread(pathAborted_.c_str()).empty() )
                 ROS_FATAL("Aborted image was not loaded. Could not be found on %s", pathAborted_.c_str());
 
-        else if ( cv::imread(pathExploring_.c_str()).empty() )
-                ROS_FATAL("Exploring image was not loaded. Could not be found on %s", pathExploring_.c_str());
-
-        else if ( cv::imread(pathExplorationDone_.c_str()).empty() )
-                ROS_FATAL("Done exploratio image was not loaded. Could not be found on %s", pathExplorationDone_.c_str());
 
         else if ( cv::imread(pathCanceled_.c_str()).empty() )
                 ROS_FATAL("Goal cancel image was not loaded. Could not be found on %s", pathCanceled_.c_str());
@@ -151,12 +134,8 @@ StatusPublisher::StatusPublisher() : it_(nh_)
         // Load Aborted image with openCv
         cvAborted_.image = cv::imread(pathAborted_.c_str());
         cvAborted_.encoding = sensor_msgs::image_encodings::BGR8;
-        // Load Exploring image with openCv
-        cvExploring_.image = cv::imread(pathExploring_.c_str());
-        cvExploring_.encoding = sensor_msgs::image_encodings::BGR8;
-        // Load Exploration done image with openCv
-        cvExplorationDone_.image = cv::imread(pathExplorationDone_.c_str());
-        cvExplorationDone_.encoding = sensor_msgs::image_encodings::BGR8;
+      
+       
         // Load Cancel goal image with openCv
         cvCanceled_.image = cv::imread(pathCanceled_.c_str());
         cvCanceled_.encoding = sensor_msgs::image_encodings::BGR8;
@@ -168,8 +147,6 @@ StatusPublisher::StatusPublisher() : it_(nh_)
         cvActive_.toImageMsg(rosImgActive_);
         cvSucceeded_.toImageMsg(rosImgSucceeded_);
         cvAborted_.toImageMsg(rosImgAborted_);
-        cvExploring_.toImageMsg(rosImgExploring_);
-        cvExplorationDone_.toImageMsg(rosImgExplorationDone_);
         cvCanceled_.toImageMsg(rosImgCanceled_);
 
         // Publish the default mode
@@ -191,33 +168,6 @@ void StatusPublisher::loaCallBack(const std_msgs::Int8::ConstPtr& mode)
 
 }
 
-// takes care of EXPLORATION current STATUS
-void StatusPublisher::exploration_statusCallback(const actionlib_msgs::GoalStatusArray::ConstPtr& exploration_status)
-
-{
-        if (!exploration_status->status_list.empty()) //First make sure the vector is not empty to avoid memory allocation errors.
-        {
-                if (exploration_status->status_list.size() > 1)
-                {
-                        actionlib_msgs::GoalStatus goalStatus = exploration_status->status_list[1];
-                        exploration_status_ = goalStatus.status;
-                }
-                else
-                {
-
-                        actionlib_msgs::GoalStatus goalStatus = exploration_status->status_list[0];
-                        exploration_status_ = goalStatus.status;
-                }
-        }
-}
-
-
-// takes care of EXPLORATION end Result
-
-void StatusPublisher::exploration_resultCallback(const frontier_exploration::ExploreTaskActionResult::ConstPtr& exploration_result)
-{
-        exploration_result_ = exploration_result->status.status;
-}
 
 
 // takes care of NAVIGATION current STATUS
@@ -252,46 +202,29 @@ void StatusPublisher::nav_resultCallBack(const move_base_msgs::MoveBaseActionRes
 void StatusPublisher::timerPubStatusCallback(const ros::TimerEvent&)
 {
         // Publish current/running state
-        if (nav_status_ == 1 && exploration_status_ != 1)
+        if (nav_status_ == 1)
                 nav_status_pub_.publish(rosImgActive_);
 
-        else if (nav_status_ == 1 && exploration_status_ == 1)
-                nav_status_pub_.publish(rosImgExploring_);
 
         // Publish end state of goals
-        else if (nav_result_ == 3 && exploration_result_ == 4)
-        {
-                nav_status_pub_.publish(rosImgExplorationDone_);
-                nav_result_ = -1; //setting flags back to default to avoud wrong state pub
-                exploration_result_ = -1;
-        }
 
-        else if (nav_result_== 2 && exploration_result_ == 3)
-        {
-                nav_status_pub_.publish(rosImgExplorationDone_);
-                nav_result_ = -1;
-                exploration_result_ = -1;
-        }
 
-        else if (nav_result_== 3 && exploration_result_ != 4)
+        else if (nav_result_== 3)
         {
                 nav_status_pub_.publish(rosImgSucceeded_);
                 nav_result_ = -1;
-                exploration_result_ = -1;
         }
 
-        else if (nav_result_== 2 && exploration_result_ !=3 && exploration_status_ != 1)
+        else if (nav_result_== 2)
         {
                 nav_status_pub_.publish(rosImgCanceled_);
                 nav_result_ = -1;
-                exploration_result_ = -1;
         }
 
         else if (nav_result_ == 4 )
         {
                 nav_status_pub_.publish(rosImgAborted_);
                 nav_result_ = -1;
-                exploration_result_ = -1;
         }
 
 
