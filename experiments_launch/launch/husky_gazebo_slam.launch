@@ -4,11 +4,11 @@
 
   <!-- parameters for the husky packages e.g. for husky description -->
   <arg name="laser_enabled" default="true"/>
-  <arg name="kinect_enabled" default="true"/>
+  <arg name="realsense_enabled" default="true"/>
   <arg name="urdf_extras" default=""/>
 
   <!-- gazebo world/arena -->
-  <arg name="world_name" default="$(find experiments_launch)/world/training_arena.world"/>
+  <arg name="world_name" default="$(find experiments_launch)/world/mi_arena.world"/>
 
   <!-- spawning coordinates in gazebo fom mi arena-->
   <!-- <arg name="x" default="9.04"/>
@@ -29,7 +29,7 @@
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="realsense_enabled" value="$(arg realsense_enabled)"/>
     <arg name="urdf_extras" value="$(arg urdf_extras)"/>
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>
