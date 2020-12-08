@@ -36,13 +36,14 @@
   <build_depend>gmapping</build_depend>
   <build_depend>mixed_initiative_teleop</build_depend>
   <build_depend>move_base</build_depend>
+  <build_depend>global_planner</build_depend>
+
   <run_depend>gmapping</run_depend>
   <run_depend>mixed_initiative_controller</run_depend>
   <run_depend>mixed_initiative_teleop</run_depend>
   <run_depend>move_base</run_depend>
   <run_depend>fake_localization</run_depend> 
   <run_depend>hector_slam</run_depend>
-  <run_depend>global_planner</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

@@ -23,7 +23,7 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWIS
     <rosparam file="$(find husky_navigation)/config/costmap_common.yaml" command="load" ns="local_costmap" />
 
     <!-- local costmap, needs size -->
-    <rosparam file="$(find experiments_launch)/config/costmap_local_laser_noise.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find husky_navigation)/config/costmap_local.yaml" command="load" ns="local_costmap"/>
     <param name="local_costmap/width" value="6.0"/>
     <param name="local_costmap/height" value="6.0"/>
 

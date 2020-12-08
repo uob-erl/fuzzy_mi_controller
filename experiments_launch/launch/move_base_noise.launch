@@ -20,7 +20,7 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWIS
 
     <!-- observation sources located in costmap_common.yaml -->
     <rosparam file="$(find experiments_launch)/config/costmap_common_laser_noise.yaml" command="load" ns="global_costmap"/>
-    <rosparam file="$(find experiments_launch)/config/costmap_local_laser_noise.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find experiments_launch)/config/costmap_common_laser_noise.yaml" command="load" ns="local_costmap"/>
 
     <!-- local costmap, needs size -->
     <rosparam file="$(find experiments_launch)/config/costmap_local_laser_noise.yaml" command="load" ns="local_costmap"/>

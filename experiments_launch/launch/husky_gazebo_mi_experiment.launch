@@ -65,29 +65,29 @@
   </node>
 
   <!--- Run AMCL -->
-  <!-- <include file="$(find husky_navigation)/launch/amcl.launch"> <arg name="scan_topic" value="$(arg scan_topic)"/> </include> -->
-  <include file="$(find husky_navigation)/launch/amcl.launch">
+  <arg name="scan_topic" default="scan_with_noise"/>
+  <include file="$(find husky_navigation)/launch/amcl.launch"> <arg name="scan_topic" value="$(arg scan_topic)"/> </include>
   
   <!-- Fake/perfect localization -->
   <!-- Fake localisation needs proadcaster to connect map and odom -->
-  <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 /map /odom 100" />
+  <!-- <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 /map /odom 100" />
   <node pkg="fake_localization" type="fake_localization" name="fake_localization">
     <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
     <param name="delta_x" value="-9.08"/>
     <param name="delta_y" value="6.95"/>
     <param name="delta_yaw" value="3.14"/>
-  </node>
+  </node> -->
 
   <!--- Run Move Base -->
+  <!-- To run without noise just launch move_base_no_noise.launch -->
   <include file="$(find experiments_launch)/launch/move_base_noise.launch"/>
 
-  <!-- Laser noise node to add some extra noise-->
-  <!--   
+  <!-- Laser noise node to add some extra noise--> 
   <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="">
-    <remap from="/scan" to="/scan_filtered" />
-    <remap from="/scan_with_noise" to="/scan_final" />
+    <!-- <remap from="/scan" to="/scan_filtered" />
+    <remap from="/scan_with_noise" to="/scan_final" /> -->
     <param name="noise_period" value="30.0"/>
-  </node> -->
+  </node>
 
   <!-- mode and status, logging and visualising nodes -->
   <node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
