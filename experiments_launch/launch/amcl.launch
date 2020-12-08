@@ -1,8 +1,8 @@
 <launch>
 
-   <!-- AMCL node -->
-   <node pkg="amcl" type="amcl" name="amcl" respawn="true">
-   <remap from="scan" to="scan_final" />
+  <!-- AMCL node -->
+  <node pkg="amcl" type="amcl" name="amcl" respawn="true">
+  <!-- <remap from="scan" to="scan_final" /> -->
 
   <!-- Set initial position -->
   <param name="initial_pose_x" value="0.673"/>
@@ -32,7 +32,7 @@
   <param name="odom_alpha3" value="0.010"/>
   <param name="odom_alpha4" value="0.005"/>
 
- <!-- Laser model parameters -->
+  <!-- Laser model parameters -->
   <!--param name="laser_z_hit" value="0.5"/>
   <param name="laser_z_short" value="0.05"/>
   <param name="laser_z_max" value="0.05"/>
