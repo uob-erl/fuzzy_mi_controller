@@ -18,9 +18,12 @@
   <arg name="scale_angular" default="0.9"/>
 
   <!-- other parameters -->
-  <arg name="map_file" default="$(find experiments_launch)/world/mi_map.yaml"/>
   <arg name="world_name" default="$(find experiments_launch)/world/mi_arena.world"/>
   <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
+
+  <!-- Run the map server -->
+  <arg name="map_file" default="$(find experiments_launch)/world/mi_map.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
 
   <!-- launching gazebo stuff -->
   <include file="$(find experiments_launch)/launch/gazebo_world.launch">
@@ -61,27 +64,28 @@
     <remap from="/cmd_vel" to="/husky_velocity_controller/cmd_vel"/>
   </node>
 
-  <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
-
   <!--- Run AMCL -->
-  <!-- <include file="$(find husky_navigation)/launch/amcl.launch"> <arg name="scan_topic" value="$(arg scan_topic)"/> </include> -->
-
+  <arg name="scan_topic" default="scan_with_noise"/>
+  <include file="$(find husky_navigation)/launch/amcl.launch"> <arg name="scan_topic" value="$(arg scan_topic)"/> </include>
+  
   <!-- Fake/perfect localization -->
+  <!-- Fake localisation needs proadcaster to connect map and odom -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="map_odom_broadcaster" args="0 0 0 0 0 0 /map /odom 100" />
   <node pkg="fake_localization" type="fake_localization" name="fake_localization">
     <remap from="base_pose_ground_truth" to="$(arg ground_truth_topic)"/>
     <param name="delta_x" value="-9.08"/>
     <param name="delta_y" value="6.95"/>
     <param name="delta_yaw" value="3.14"/>
-  </node>
+  </node> -->
 
   <!--- Run Move Base -->
+  <!-- To run without noise just launch move_base_no_noise.launch -->
   <include file="$(find experiments_launch)/launch/move_base_noise.launch"/>
 
-  <!-- Laser noise node to add some extra noise-->
-  <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="laser_noise">
-    <!-- <remap from="/scan" to="/scan_filtered" /> -->
-    <!-- <remap from="/scan_with_noise" to="/scan_final" /> -->
+  <!-- Laser noise node to add some extra noise--> 
+  <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="">
+    <!-- <remap from="/scan" to="/scan_filtered" />
+    <remap from="/scan_with_noise" to="/scan_final" /> -->
     <param name="noise_period" value="30.0"/>
   </node>
 
@@ -89,6 +93,7 @@
   <node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
   <node pkg="status_publisher" type="experiment_logger" name="experiment_logger" output="screen"/>
   <node pkg="status_publisher" type="status_sound_publisher_node" name="status_sound_publisher_node" output="screen"/>
+  <!-- RVIZ config -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find experiments_launch)/rviz_cfg/rviz_husky.rviz"/>
 
   <!-- Play sounds -->

@@ -7,10 +7,9 @@ EXPRESS OR IMPLIED WAR- RANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARR
 DIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
 WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE )ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. -->
 <launch>
-  <!-- <arg name="base_global_planner" default="navfn/NavfnROS"/> -->
+
   <arg name="base_global_planner" default="global_planner/GlobalPlanner"/>
   <arg name="base_local_planner" default="dwa_local_planner/DWAPlannerROS"/>
-  <!-- <arg name="base_local_planner" default="base_local_planner/TrajectoryPlannerROS"/> -->
 
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
     <remap from="/cmd_vel" to="/navigation/cmd_vel"/>
@@ -19,11 +18,12 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWIS
     <rosparam file="$(find husky_navigation)/config/planner.yaml" command="load"/>
 
     <!-- observation sources located in costmap_common.yaml -->
-    <rosparam file="$(find experiments_launch)/config/costmap_common_laser_noise.yaml" command="load" ns="global_costmap"/>
-    <rosparam file="$(find experiments_launch)/config/costmap_common_laser_noise.yaml" command="load" ns="local_costmap"/>
+    <!-- NO NOISE costmap params -->
+    <rosparam file="$(find husky_navigation)/config/costmap_common.yaml" command="load" ns="global_costmap" />
+    <rosparam file="$(find husky_navigation)/config/costmap_common.yaml" command="load" ns="local_costmap" />
 
     <!-- local costmap, needs size -->
-    <rosparam file="$(find experiments_launch)/config/costmap_local_laser_noise.yaml" command="load" ns="local_costmap"/>
+    <rosparam file="$(find husky_navigation)/config/costmap_local.yaml" command="load" ns="local_costmap"/>
     <param name="local_costmap/width" value="6.0"/>
     <param name="local_costmap/height" value="6.0"/>
 
