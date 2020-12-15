@@ -43,7 +43,7 @@ std_msgs::Int8 ai_switch_count_msg_;
 
 ros::NodeHandle n_;
 ros::Subscriber loa_sub_,vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_;
-ros::Publisher loa_pub_, loa_change_pub_, goal_directed_motion_error_pub_, goal_directed_motion_error_average_pub_, ai_switch_count_pub_, loa_changed_pub_;
+ros::Publisher loa_pub_, loa_change_pub_, ai_suggested_loa_pub_ , goal_directed_motion_error_pub_, goal_directed_motion_error_average_pub_, ai_switch_count_pub_, loa_changed_pub_;
 ros::Timer compute_cost_;
 
 geometry_msgs::Twist cmd_vel_robot_, cmdvel_for_robot_, cmd_vel_expert_;
@@ -68,7 +68,7 @@ MixedInitiativeController::MixedInitiativeController(fl::Engine* engine)
         number_timesteps_vel_ = 16;
         count_timesteps_vel_ = 1;
 
-
+        ai_suggested_loa_pub_ = n_.advertise<std_msgs::Int8>("/ai_suggested_loa", 1);
         loa_change_pub_ = n_.advertise<std_msgs::Bool>("/loa_change", 1);
         goal_directed_motion_error_pub_ = n_.advertise<std_msgs::Float64>("/goal_directed_motion/error", 1);
         goal_directed_motion_error_average_pub_ = n_.advertise<std_msgs::Float64>("/goal_directed_motion/error_average", 1);
@@ -237,6 +237,22 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
                         {
                                 loa_change_.data = true;
                                 loa_change_pub_.publish(loa_change_);
+
+                                if (loa_ == 1)
+
+                                {
+                                std_msgs::Int8 ai_suggested_loa;
+                                ai_suggested_loa.data = 2;
+                                ai_suggested_loa_pub_.publish(ai_suggested_loa);
+                                }
+
+                                if (loa_ == 2)
+
+                                {
+                                std_msgs::Int8 ai_suggested_loa;
+                                ai_suggested_loa.data = 1;
+                                ai_suggested_loa_pub_.publish(ai_suggested_loa);
+                                }
 
                                 ai_switch_count_msg_.data++;
                                 ai_switch_count_pub_.publish(ai_switch_count_msg_);

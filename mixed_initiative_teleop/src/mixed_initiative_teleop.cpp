@@ -55,7 +55,6 @@
    <hr>
  */
 
-
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
@@ -68,75 +67,89 @@ class JoystickTeleop
 {
 
 public:
-JoystickTeleop();
+        JoystickTeleop();
 
 private:
-void joyCallback(const sensor_msgs::Joy::ConstPtr& joy);
-void  publish();
+        void joyCallback(const sensor_msgs::Joy::ConstPtr &joy);
+        void publish();
 
-ros::NodeHandle ph_,nh_;
+        ros::NodeHandle ph_, nh_;
 
-int linear_axis_, angular_axis_, control_button_, stop_button_, auto_button_, teleop_button_;
-double linear_scaling_, angular_scaling_;
-geometry_msgs::Twist last_msg_published_;
-boost::mutex publish_mutex_;
+        int linear_axis_, angular_axis_, control_button_, stop_button_, auto_button_, teleop_button_;
+        double linear_scaling_, angular_scaling_;
+        geometry_msgs::Twist last_msg_published_;
+        boost::mutex publish_mutex_;
 
-ros::Publisher vel_pub_, loa_pub_;
-ros::Subscriber joy_sub_;
-ros::Timer timer_;
-
+        ros::Publisher vel_pub_, loa_pub_, ai_loa_pub_;
+        ros::Subscriber joy_sub_;
+        ros::Timer timer_;
 };
 
-
-JoystickTeleop::JoystickTeleop() :
-        ph_("~")
+JoystickTeleop::JoystickTeleop() : ph_("~")
 
 {
-// Default movement axis
+        // Default movement axis
         ph_.param("axis_linear", linear_axis_, 1);
         ph_.param("axis_angular", angular_axis_, 0);
 
-// Default scaling parameters
+        // Default scaling parameters
         ph_.param("scale_angular", angular_scaling_, 0.60);
         ph_.param("scale_linear", linear_scaling_, 0.4);
 
-//Default buttons for Xbox 360 joystick.
+        //Default buttons for Xbox 360 joystick.
         ph_.param("teleop_button", teleop_button_, 3); // Y button
-        ph_.param("stop_button", stop_button_, 4); // LB button
-        ph_.param("auto_button", auto_button_, 0); // A button
+        ph_.param("stop_button", stop_button_, 4);     // LB button
+        ph_.param("auto_button", auto_button_, 0);     // A button
 
         vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/teleop/cmd_vel", 5);
-        loa_pub_ = nh_.advertise<std_msgs::Int8>("/loa", 5);
+        loa_pub_ = nh_.advertise<std_msgs::Int8>("/loa", 5);                 // publishing operators LOA choice
+        ai_loa_pub_ = nh_.advertise<std_msgs::Int8>("/ai_suggested_loa", 5); // publishing the emulated AI's LOA choice
+
         joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 2, &JoystickTeleop::joyCallback, this);
 
         timer_ = nh_.createTimer(ros::Duration(0.1), boost::bind(&JoystickTeleop::publish, this));
-
 }
 
-void JoystickTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr& joy)
+void JoystickTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr &joy)
 {
         geometry_msgs::Twist cmd_vel;
         std_msgs::Int8 mode;
+        std_msgs::Int8 ai_emulated_loa_;
 
         // movement commands
         cmd_vel.linear.x = linear_scaling_ * joy->axes[linear_axis_];
         cmd_vel.angular.z = angular_scaling_ * joy->axes[angular_axis_];
         last_msg_published_ = cmd_vel;
 
-        // autonomy mode choice
-        if (joy->buttons[stop_button_]) {
-                mode.data=0;
+        // LOA choice/suggestion from operator
+        if (joy->buttons[stop_button_])
+        {
+                mode.data = 0;
                 loa_pub_.publish(mode);
         }
-        if (joy->buttons[teleop_button_]) {
-                mode.data=1;
+        if (joy->buttons[teleop_button_])
+        {
+                mode.data = 1;
                 loa_pub_.publish(mode);
         }
-        if (joy->buttons[auto_button_]) {
-                mode.data=2;
+        if (joy->buttons[auto_button_])
+        {
+                mode.data = 2;
                 loa_pub_.publish(mode);
         }
 
+        // LOA choice/suggestion from joystick but emulating the AI LOA suggested LOA switchies.
+        // works with the digital "cross" in joystick
+        if (joy->axes[7] == -1)
+        {
+                ai_emulated_loa_.data = 2;
+                ai_loa_pub_.publish(ai_emulated_loa_);
+        }
+        if (joy->axes[7] == 1)
+        {
+                ai_emulated_loa_.data = 1;
+                ai_loa_pub_.publish(ai_emulated_loa_);
+        }
 }
 
 void JoystickTeleop::publish()
@@ -146,7 +159,7 @@ void JoystickTeleop::publish()
 }
 
 // the main function
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
         ros::init(argc, argv, "mixed_initiative_teleop");
         JoystickTeleop joystick_teleop;
