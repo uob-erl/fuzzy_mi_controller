@@ -18,8 +18,8 @@
   <arg name="scale_angular" default="0.9"/>
 
   <!-- other parameters -->
-  <arg name="map_file" default="$(find erl_arenas)/worlds/operator_intent_mi_test5.yaml"/>
-  <arg name="world_name" default="$(find erl_arenas)/worlds/operator_intent_mi_test5.world"/>
+  <arg name="map_file" default="$(find erl_arenas)/worlds/operator_intent_mi_test6.yaml"/>
+  <arg name="world_name" default="$(find erl_arenas)/worlds/operator_intent_mi_test6.world"/>
   <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
 
   <!-- launching gazebo stuff -->
