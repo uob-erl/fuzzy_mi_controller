@@ -48,7 +48,7 @@ ControlMixer::ControlMixer()
     cancelGoal_pub_ = n_.advertise<actionlib_msgs::GoalID>("/move_base/cancel", 1);
     loa_pub_ = n_.advertise<std_msgs::Int8>("/loa", 1);
 
-    loa_sub_ = n_.subscribe("/negotiated_loa", 5, &ControlMixer::loaCallback, this);           // the negotiated LOA topic or final LOA topic coming from an arbitration agent
+    loa_sub_ = n_.subscribe("/nemi/negotiated_loa", 5, &ControlMixer::loaCallback, this);           // the negotiated LOA topic or final LOA topic coming from an arbitration agent
     vel_teleop_sub_ = n_.subscribe("/teleop/cmd_vel", 5, &ControlMixer::teleopCallback, this); // velocity coming from the teleoperation (Joystick)
     vel_nav_sub_ = n_.subscribe("/navigation/cmd_vel", 5, &ControlMixer::navCallback, this);   // velocity from the AI navigation e.g. move_base
 }

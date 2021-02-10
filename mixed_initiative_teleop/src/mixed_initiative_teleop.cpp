@@ -1,6 +1,6 @@
 /*!
  * mixed_initiative_teleop_node.cpp
- * Copyright (c) 2014, Manolis Chiou
+ * Copyright (c) 2021, Manolis Chiou
  * All rights reserved.
  *
  *
@@ -30,36 +30,13 @@
  *
  */
 
-/*!
-
-   @mainpage
-   Joystick teleoperation node for use within the mixed initiative framework. The user can operate the robot in
-   teleoperation mode and change on the fly autonomy level/mode. Also a stop button is implimented.
-   It was ment to be used with an Xbox 360 joystick but should work with any joystick.
-   <hr>
-
-   @section usage Usage
-   @par    After start roscore, you need load robot configuration file to parameter server first.
-        For example, I90 robot, you need load drrobotplayer_I90.yaml use command "rosparam load drrobotplayer_I90.yaml"
-        then run drrobot_player first. then start ros joy node.
-   @verbatim
-   $ mixed_initiative_teleop
-   @endverbatim
-
-   <hr>
-   @section topic ROS topics
-
-   Publishes to (name / type):
-   -@b /teleop/cmd_vel: will publish to /teleop/cmd_vel a geometry_msgs/Twist.msg type message to drrobot_player.
-   For differential robots, linear.x is forward/backward speed (m/sec), and angular.z (rad/sec)is the angular speed.
-   <hr>
- */
 
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Int8.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Float64.h>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
@@ -80,7 +57,7 @@ private:
         geometry_msgs::Twist last_msg_published_;
         boost::mutex publish_mutex_;
 
-        ros::Publisher vel_pub_, loa_pub_, ai_loa_pub_;
+        ros::Publisher vel_pub_, loa_pub_, ai_loa_pub_, loa_utility_delta_pub_;
         ros::Subscriber joy_sub_;
         ros::Timer timer_;
 };
@@ -102,8 +79,9 @@ JoystickTeleop::JoystickTeleop() : ph_("~")
         ph_.param("auto_button", auto_button_, 0);     // A button
 
         vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/teleop/cmd_vel", 5);
-        loa_pub_ = nh_.advertise<std_msgs::Int8>("/loa", 5);                 // publishing operators LOA choice
+        loa_pub_ = nh_.advertise<std_msgs::Int8>("/human_suggested_loa", 5);                 // publishing operators LOA choice
         ai_loa_pub_ = nh_.advertise<std_msgs::Int8>("/ai_suggested_loa", 5); // publishing the emulated AI's LOA choice
+        loa_utility_delta_pub_ = nh_.advertise<std_msgs::Float64>("/loa_utility_delta", 5); // publishing manually the delta for the negotiation or testing perpuses
 
         joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 2, &JoystickTeleop::joyCallback, this);
 
@@ -115,6 +93,7 @@ void JoystickTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr &joy)
         geometry_msgs::Twist cmd_vel;
         std_msgs::Int8 mode;
         std_msgs::Int8 ai_emulated_loa_;
+        std_msgs::Float64 delta_emulated_;
 
         // movement commands
         cmd_vel.linear.x = linear_scaling_ * joy->axes[linear_axis_];
@@ -150,6 +129,27 @@ void JoystickTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr &joy)
                 ai_emulated_loa_.data = 1;
                 ai_loa_pub_.publish(ai_emulated_loa_);
         }
+
+          // LOA choice/suggestion from joystick but emulating the AI LOA suggested LOA switchies.
+        // works with the digital "cross" in joystick
+        if (joy->axes[7] == -1)
+        {
+                ai_emulated_loa_.data = 2;
+                ai_loa_pub_.publish(ai_emulated_loa_);
+        }
+
+        // Manual delta for the negotiation interface. For testing purposes. 
+        if (joy->axes[6] == 1)
+        {
+                delta_emulated_.data = 0.9;
+                loa_utility_delta_pub_.publish(delta_emulated_);
+        }
+          if (joy->axes[6] == -1)
+        {
+                delta_emulated_.data = 0.2;
+                loa_utility_delta_pub_.publish(delta_emulated_);
+        }
+
 }
 
 void JoystickTeleop::publish()
