@@ -37,13 +37,15 @@ void goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& goalRes
 int loa_, number_timesteps_error_, count_timesteps_error_, number_timesteps_vel_, count_timesteps_vel_, previous_loa_;
 bool valid_loa_, mi_active_;
 double error_sum_, error_average_, velocity_sum_, vel_error_average_,  a_,vel_error_, vel_error_threshold_, decision_;
+double utility_alternative_loa_, utility_current_loa_, utility_delta_;
 std_msgs::Bool loa_change_, loa_changed_msg_;
-std_msgs::Float64 error_average_msg_, vel_average_msg_;
+std_msgs::Float64 error_average_msg_, vel_average_msg_, utility_delta_msg_;
 std_msgs::Int8 ai_switch_count_msg_;
 
 ros::NodeHandle n_;
 ros::Subscriber loa_sub_,vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_;
-ros::Publisher loa_pub_, loa_change_pub_, ai_suggested_loa_pub_ , goal_directed_motion_error_pub_, goal_directed_motion_error_average_pub_, ai_switch_count_pub_, loa_changed_pub_;
+ros::Publisher loa_pub_, loa_change_pub_, ai_suggested_loa_pub_ , goal_directed_motion_error_pub_, goal_directed_motion_error_average_pub_;
+ros::Publisher ai_switch_count_pub_, loa_changed_pub_, loa_delta_pub_; 
 ros::Timer compute_cost_;
 
 geometry_msgs::Twist cmd_vel_robot_, cmdvel_for_robot_, cmd_vel_expert_;
@@ -68,10 +70,13 @@ MixedInitiativeController::MixedInitiativeController(fl::Engine* engine)
         number_timesteps_vel_ = 16;
         count_timesteps_vel_ = 1;
 
+        utility_alternative_loa_ = 1 ; 
+
         ai_suggested_loa_pub_ = n_.advertise<std_msgs::Int8>("/ai_suggested_loa", 1);
         loa_change_pub_ = n_.advertise<std_msgs::Bool>("/loa_change", 1);
         goal_directed_motion_error_pub_ = n_.advertise<std_msgs::Float64>("/goal_directed_motion/error", 1);
         goal_directed_motion_error_average_pub_ = n_.advertise<std_msgs::Float64>("/goal_directed_motion/error_average", 1);
+        loa_delta_pub_ = n_.advertise<std_msgs::Float64>("/loa_utility_delta", 1);
         ai_switch_count_pub_ = n_.advertise<std_msgs::Int8>("/ai_switch_count", 1);
         loa_changed_pub_ = n_.advertise<std_msgs::Bool>("/loa_has_changed", 1);
         sub_goal_status_ = n_.subscribe<actionlib_msgs::GoalStatusArray>("/expert_move_base/status", 1, &MixedInitiativeController::goalResultCallBack,this);
@@ -275,6 +280,14 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
 
                 vel_average_msg_.data = vel_error_average_;
                 goal_directed_motion_error_average_pub_.publish(vel_average_msg_);
+
+                // Calculate Utility values
+                utility_current_loa_ = 1 - (error_average_*10);
+                FL_LOG("utility_current = " << fl::Op::str(utility_current_loa_) );
+                utility_delta_ = abs(utility_current_loa_ - utility_alternative_loa_); 
+                FL_LOG("utility_delta = " << fl::Op::str(utility_delta_) );
+                utility_delta_msg_.data = utility_delta_;
+                loa_delta_pub_.publish(utility_delta_msg_);
         }
 
 }
