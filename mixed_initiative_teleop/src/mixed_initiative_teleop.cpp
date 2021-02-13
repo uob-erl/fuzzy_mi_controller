@@ -30,7 +30,6 @@
  *
  */
 
-
 #include <ros/ros.h>
 #include <sensor_msgs/Joy.h>
 #include <geometry_msgs/Twist.h>
@@ -57,7 +56,7 @@ private:
         geometry_msgs::Twist last_msg_published_;
         boost::mutex publish_mutex_;
 
-        ros::Publisher vel_pub_, loa_pub_, ai_loa_pub_, loa_utility_delta_pub_;
+        ros::Publisher vel_pub_, loa_pub_, ai_loa_pub_, loa_utility_delta_pub_, laser_noise_activate_pub_;
         ros::Subscriber joy_sub_;
         ros::Timer timer_;
 };
@@ -79,9 +78,11 @@ JoystickTeleop::JoystickTeleop() : ph_("~")
         ph_.param("auto_button", auto_button_, 0);     // A button
 
         vel_pub_ = nh_.advertise<geometry_msgs::Twist>("/teleop/cmd_vel", 5);
-        loa_pub_ = nh_.advertise<std_msgs::Int8>("/human_suggested_loa", 5);                 // publishing operators LOA choice
-        ai_loa_pub_ = nh_.advertise<std_msgs::Int8>("/ai_suggested_loa", 5); // publishing the emulated AI's LOA choice
+        loa_pub_ = nh_.advertise<std_msgs::Int8>("/human_suggested_loa", 5);                // publishing operators LOA choice
+        ai_loa_pub_ = nh_.advertise<std_msgs::Int8>("/ai_suggested_loa", 5);                // publishing the emulated AI's LOA choice
         loa_utility_delta_pub_ = nh_.advertise<std_msgs::Float64>("/loa_utility_delta", 5); // publishing manually the delta for the negotiation or testing perpuses
+
+        laser_noise_activate_pub_ = nh_.advertise<std_msgs::Bool>("/joy_triggered_noise", 1);
 
         joy_sub_ = nh_.subscribe<sensor_msgs::Joy>("joy", 2, &JoystickTeleop::joyCallback, this);
 
@@ -117,6 +118,10 @@ void JoystickTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr &joy)
                 loa_pub_.publish(mode);
         }
 
+        // Code bellow is to help testing of experiment by experimenter. Some of this functionality
+        // goes to the second "experimenter" joystic (e.g. noise) during the actual experiment
+        // Hence in the actual experiment the below part should be commented.
+
         // LOA choice/suggestion from joystick but emulating the AI LOA suggested LOA switchies.
         // works with the digital "cross" in joystick
         if (joy->axes[7] == -1)
@@ -130,7 +135,7 @@ void JoystickTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr &joy)
                 ai_loa_pub_.publish(ai_emulated_loa_);
         }
 
-          // LOA choice/suggestion from joystick but emulating the AI LOA suggested LOA switchies.
+        // LOA choice/suggestion from joystick but emulating the AI LOA suggested LOA switchies.
         // works with the digital "cross" in joystick
         if (joy->axes[7] == -1)
         {
@@ -138,18 +143,24 @@ void JoystickTeleop::joyCallback(const sensor_msgs::Joy::ConstPtr &joy)
                 ai_loa_pub_.publish(ai_emulated_loa_);
         }
 
-        // Manual delta for the negotiation interface. For testing purposes. 
+        // Manual delta for the negotiation interface. For testing purposes.
         if (joy->axes[6] == 1)
         {
                 delta_emulated_.data = 0.9;
                 loa_utility_delta_pub_.publish(delta_emulated_);
         }
-          if (joy->axes[6] == -1)
+        if (joy->axes[6] == -1)
         {
                 delta_emulated_.data = 0.2;
                 loa_utility_delta_pub_.publish(delta_emulated_);
         }
 
+        if (joy->buttons[6] == true) // triggers/activates laser noise (Y)
+        {
+                std_msgs::Bool joy_noise;
+                joy_noise.data = true;
+                laser_noise_activate_pub_.publish(joy_noise);
+        }
 }
 
 void JoystickTeleop::publish()

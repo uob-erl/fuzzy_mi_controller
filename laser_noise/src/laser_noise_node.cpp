@@ -14,7 +14,9 @@ LaserNoise()
 {
         ros::NodeHandle private_nh("laser_noise");
         // Initialise the noise period...
-        private_nh.param("noise_period", noise_period_, 30.0);
+        private_nh.param("noise_period", noise_period_, 15.0); // This needs fixing, currently does nto wrk with values from .launch
+        private_nh.param("noise_scale", noise_scale_, 0.25);
+        
         // and the rectacular area of noise bounded by the rectacle of which the 4 points are the corners.
         private_nh.param("x_max", x_max_, 532.61);
         private_nh.param("x_min", x_min_, 531.10);
@@ -33,7 +35,7 @@ LaserNoise()
         timer_noise_ = n_.createTimer(ros::Duration(noise_period_), &LaserNoise::timerNoiseCallback, this, false, false);
 
         area_trigger_ = 0, timer_trigger_ =0, timer_activated_= 0, joy_noise_trigger_ = 0;
-        noise_scale_ = 0.3;
+
 }
 
 private:

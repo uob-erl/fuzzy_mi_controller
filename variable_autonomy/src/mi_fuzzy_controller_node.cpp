@@ -3,7 +3,6 @@
    BLABLABLA
  */
 
-
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 
@@ -24,38 +23,36 @@
 class MixedInitiativeController
 {
 public:
-MixedInitiativeController(fl::Engine *engine);
+        MixedInitiativeController(fl::Engine *engine);
 
 private:
+        void loaCallback(const std_msgs::Int8::ConstPtr &msg);
+        void robotVelExpertCallback(const geometry_msgs::Twist::ConstPtr &msg);
+        void robotVelCallback(const geometry_msgs::Twist::ConstPtr &msg);
+        void computeCostCallback(const ros::TimerEvent &);
+        void goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr &goalResult);
 
-void loaCallback(const std_msgs::Int8::ConstPtr& msg);
-void robotVelExpertCallback(const geometry_msgs::Twist::ConstPtr& msg);
-void robotVelCallback(const geometry_msgs::Twist::ConstPtr& msg);
-void computeCostCallback(const ros::TimerEvent&);
-void goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& goalResult);
+        int loa_, number_timesteps_error_, count_timesteps_error_, number_timesteps_vel_, count_timesteps_vel_, previous_loa_;
+        bool valid_loa_, mi_active_;
+        double error_sum_, error_average_, velocity_sum_, vel_error_average_, a_, vel_error_, vel_error_threshold_, decision_;
+        double utility_alternative_loa_, utility_current_loa_, utility_delta_;
+        std_msgs::Bool loa_change_, loa_changed_msg_;
+        std_msgs::Float64 error_average_msg_, vel_average_msg_, utility_delta_msg_;
+        std_msgs::Int8 ai_switch_count_msg_;
 
-int loa_, number_timesteps_error_, count_timesteps_error_, number_timesteps_vel_, count_timesteps_vel_, previous_loa_;
-bool valid_loa_, mi_active_;
-double error_sum_, error_average_, velocity_sum_, vel_error_average_,  a_,vel_error_, vel_error_threshold_, decision_;
-double utility_alternative_loa_, utility_current_loa_, utility_delta_;
-std_msgs::Bool loa_change_, loa_changed_msg_;
-std_msgs::Float64 error_average_msg_, vel_average_msg_, utility_delta_msg_;
-std_msgs::Int8 ai_switch_count_msg_;
+        ros::NodeHandle n_;
+        ros::Subscriber loa_sub_, vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_;
+        ros::Publisher loa_pub_, loa_change_pub_, ai_suggested_loa_pub_, goal_directed_motion_error_pub_, goal_directed_motion_error_average_pub_;
+        ros::Publisher ai_switch_count_pub_, loa_changed_pub_, loa_delta_pub_;
+        ros::Timer compute_cost_;
 
-ros::NodeHandle n_;
-ros::Subscriber loa_sub_,vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_;
-ros::Publisher loa_pub_, loa_change_pub_, ai_suggested_loa_pub_ , goal_directed_motion_error_pub_, goal_directed_motion_error_average_pub_;
-ros::Publisher ai_switch_count_pub_, loa_changed_pub_, loa_delta_pub_; 
-ros::Timer compute_cost_;
+        geometry_msgs::Twist cmd_vel_robot_, cmdvel_for_robot_, cmd_vel_expert_;
+        actionlib_msgs::GoalID cancelGoal_;
 
-geometry_msgs::Twist cmd_vel_robot_, cmdvel_for_robot_, cmd_vel_expert_;
-actionlib_msgs::GoalID cancelGoal_;
-
-fl::Engine* engine_;
-
+        fl::Engine *engine_;
 };
 
-MixedInitiativeController::MixedInitiativeController(fl::Engine* engine)
+MixedInitiativeController::MixedInitiativeController(fl::Engine *engine)
 {
 
         loa_change_.data = false;
@@ -66,23 +63,23 @@ MixedInitiativeController::MixedInitiativeController(fl::Engine* engine)
         a_ = 0.06; // smoothing factor [0,1]
         vel_error_threshold_ = 0;
         number_timesteps_error_ = 16; // # of time steps used to initialize average
-        count_timesteps_error_ = 1; // counts the # of time steps used to initialize average
+        count_timesteps_error_ = 1;   // counts the # of time steps used to initialize average
         number_timesteps_vel_ = 16;
         count_timesteps_vel_ = 1;
 
-        utility_alternative_loa_ = 1 ; 
+        utility_alternative_loa_ = 0.8;
 
         ai_suggested_loa_pub_ = n_.advertise<std_msgs::Int8>("/ai_suggested_loa", 1);
         loa_change_pub_ = n_.advertise<std_msgs::Bool>("/loa_change", 1);
         goal_directed_motion_error_pub_ = n_.advertise<std_msgs::Float64>("/goal_directed_motion/error", 1);
         goal_directed_motion_error_average_pub_ = n_.advertise<std_msgs::Float64>("/goal_directed_motion/error_average", 1);
-        loa_delta_pub_ = n_.advertise<std_msgs::Float64>("/loa_utility_delta", 1);
+        // loa_delta_pub_ = n_.advertise<std_msgs::Float64>("/loa_utility_delta", 1);
         ai_switch_count_pub_ = n_.advertise<std_msgs::Int8>("/ai_switch_count", 1);
         loa_changed_pub_ = n_.advertise<std_msgs::Bool>("/loa_has_changed", 1);
-        sub_goal_status_ = n_.subscribe<actionlib_msgs::GoalStatusArray>("/expert_move_base/status", 1, &MixedInitiativeController::goalResultCallBack,this);
+        sub_goal_status_ = n_.subscribe<actionlib_msgs::GoalStatusArray>("/expert_move_base/status", 1, &MixedInitiativeController::goalResultCallBack, this);
 
-        loa_sub_ = n_.subscribe("/loa", 5, &MixedInitiativeController::loaCallback, this); // the current LOA
-        vel_robot_sub_ = n_.subscribe("/cmd_vel", 5, &MixedInitiativeController::robotVelCallback, this); // current velocity of the robot.
+        loa_sub_ = n_.subscribe("/loa", 5, &MixedInitiativeController::loaCallback, this);                                    // the current LOA
+        vel_robot_sub_ = n_.subscribe("/cmd_vel", 5, &MixedInitiativeController::robotVelCallback, this);                     // current velocity of the robot.
         vel_robot_expert_sub_ = n_.subscribe("/cmd_vel_expert", 5, &MixedInitiativeController::robotVelExpertCallback, this); // The expert suggested velocity e.g. perfect move_base
 
         // The ros Duration controls the period in sec. that the cost will compute. currently 10hz
@@ -90,29 +87,26 @@ MixedInitiativeController::MixedInitiativeController(fl::Engine* engine)
 
         engine_ = engine;
         FL_LOG("Fuzzy engine created");
-
 }
 
-void MixedInitiativeController::robotVelCallback(const geometry_msgs::Twist::ConstPtr& msg)
+void MixedInitiativeController::robotVelCallback(const geometry_msgs::Twist::ConstPtr &msg)
 {
         cmd_vel_robot_ = *msg;
-
 }
 
-void MixedInitiativeController::robotVelExpertCallback(const geometry_msgs::Twist::ConstPtr& msg)
+void MixedInitiativeController::robotVelExpertCallback(const geometry_msgs::Twist::ConstPtr &msg)
 {
         cmd_vel_expert_ = *msg;
 }
 
 // takes the goal result/status from the expert move_base
-void MixedInitiativeController::goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& msg)
+void MixedInitiativeController::goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr &msg)
 {
 
         if (!msg->status_list.empty())
         {
                 actionlib_msgs::GoalStatus goalStatus;
                 goalStatus = msg->status_list[0];
-
 
                 if (goalStatus.status == 1)
                 {
@@ -126,27 +120,27 @@ void MixedInitiativeController::goalResultCallBack(const actionlib_msgs::GoalSta
                         mi_active_ = 0;
                 }
 
-                else if (goalStatus.status == 2 )
+                else if (goalStatus.status == 2)
                 {
                         ROS_INFO("Goal was cancelled");
                         mi_active_ = 0;
                 }
 
-                else if (goalStatus.status == 4 )
+                else if (goalStatus.status == 4)
                 {
                         ROS_INFO("Goal was aborded");
                         mi_active_ = 0;
-
                 }
 
-                else {
+                else
+                {
                         ROS_INFO("What happened? Status Something else?? Check expert move base status topic for code denoting status");
                         mi_active_ = 0;
                 }
         }
 }
 
-void MixedInitiativeController::loaCallback(const std_msgs::Int8::ConstPtr& msg)
+void MixedInitiativeController::loaCallback(const std_msgs::Int8::ConstPtr &msg)
 {
 
         switch (msg->data)
@@ -185,12 +179,10 @@ void MixedInitiativeController::loaCallback(const std_msgs::Int8::ConstPtr& msg)
                 loa_changed_msg_.data = true;
                 loa_changed_pub_.publish(loa_changed_msg_);
         }
-
 }
 
-
 // Where magic happens, it computes the cost, judging to switch LAO
-void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
+void MixedInitiativeController::computeCostCallback(const ros::TimerEvent &)
 {
 
         if (mi_active_ = 1)
@@ -199,7 +191,9 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
                 vel_error_ = fabs(vel_error_);
 
                 if (vel_error_ > 0.1) //bounds error
-                {vel_error_ = 0.1; }
+                {
+                        vel_error_ = 0.1;
+                }
 
                 // calculates the moving average initialization for velocity
                 if (count_timesteps_vel_ <= number_timesteps_vel_)
@@ -212,7 +206,7 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
                 // calculates exponential moving average for current velocity
                 else if (count_timesteps_vel_ > number_timesteps_vel_)
                 {
-                        vel_error_average_ = a_ * cmd_vel_robot_.linear.x + (1-a_) * vel_error_average_;
+                        vel_error_average_ = a_ * cmd_vel_robot_.linear.x + (1 - a_) * vel_error_average_;
                         engine_->setInputValue("speed", vel_error_average_);
                 }
 
@@ -224,21 +218,19 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
                         count_timesteps_error_++;
                 }
 
-
                 // calculates  exponential moving average for error
                 else if (count_timesteps_error_ > number_timesteps_error_)
                 {
-                        error_average_ = a_ * vel_error_ + (1-a_) * error_average_;
+                        error_average_ = a_ * vel_error_ + (1 - a_) * error_average_;
                         engine_->setInputValue("error", error_average_);
                         engine_->setInputValue("speed", cmd_vel_robot_.linear.x);
                         engine_->process();
                         decision_ = engine_->getOutputValue("change_LOA");
-                        FL_LOG("error = " << fl::Op::str(error_average_) );
-                        FL_LOG("speed = " << fl::Op::str(cmd_vel_robot_.linear.x) );
-                        FL_LOG("Decision = " << fl::Op::str(engine_->getOutputValue("change_LOA") ) );
+                        FL_LOG("error = " << fl::Op::str(error_average_));
+                        FL_LOG("speed = " << fl::Op::str(cmd_vel_robot_.linear.x));
+                        FL_LOG("Decision = " << fl::Op::str(engine_->getOutputValue("change_LOA")));
 
-
-                        if ( (decision_ > vel_error_threshold_) && (loa_change_.data == false) )
+                        if ((decision_ > vel_error_threshold_) && (loa_change_.data == false))
                         {
                                 loa_change_.data = true;
                                 loa_change_pub_.publish(loa_change_);
@@ -246,25 +238,25 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
                                 if (loa_ == 1)
 
                                 {
-                                std_msgs::Int8 ai_suggested_loa;
-                                ai_suggested_loa.data = 2;
-                                ai_suggested_loa_pub_.publish(ai_suggested_loa);
+                                        std_msgs::Int8 ai_suggested_loa;
+                                        ai_suggested_loa.data = 2;
+                                        ai_suggested_loa_pub_.publish(ai_suggested_loa);
                                 }
 
                                 if (loa_ == 2)
 
                                 {
-                                std_msgs::Int8 ai_suggested_loa;
-                                ai_suggested_loa.data = 1;
-                                ai_suggested_loa_pub_.publish(ai_suggested_loa);
+                                        std_msgs::Int8 ai_suggested_loa;
+                                        ai_suggested_loa.data = 1;
+                                        ai_suggested_loa_pub_.publish(ai_suggested_loa);
                                 }
 
                                 ai_switch_count_msg_.data++;
                                 ai_switch_count_pub_.publish(ai_switch_count_msg_);
 
                                 count_timesteps_error_ = 1; // enables re-initializaion of moving average by reseting count
-                                loa_change_.data = false; // resets loa_change flag
-                                error_sum_ = 0; // resets sumation of errors for initial estimate
+                                loa_change_.data = false;   // resets loa_change flag
+                                error_sum_ = 0;             // resets sumation of errors for initial estimate
                                 ros::Duration(10).sleep();
                         }
                         else if ((decision_ < vel_error_threshold_) && loa_change_.data == true)
@@ -273,35 +265,32 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
                                 loa_change_pub_.publish(loa_change_);
                         }
 
+                        error_average_msg_.data = error_average_;
+                        goal_directed_motion_error_average_pub_.publish(error_average_msg_);
+
+                        // Calculate Utility values
+                        // utility_current_loa_ = 1 - (error_average_*10);
+                        // FL_LOG("utility_current = " << fl::Op::str(utility_current_loa_) );
+                        // utility_delta_ = abs(utility_current_loa_ - utility_alternative_loa_);
+                        // FL_LOG("utility_delta = " << fl::Op::str(utility_delta_) );
+                        // utility_delta_msg_.data = utility_delta_;
+                        // loa_delta_pub_.publish(utility_delta_msg_);
                 }
 
-                error_average_msg_.data = error_average_;
-                goal_directed_motion_error_pub_.publish(error_average_msg_);
-
-                vel_average_msg_.data = vel_error_average_;
-                goal_directed_motion_error_average_pub_.publish(vel_average_msg_);
-
-                // Calculate Utility values
-                utility_current_loa_ = 1 - (error_average_*10);
-                FL_LOG("utility_current = " << fl::Op::str(utility_current_loa_) );
-                utility_delta_ = abs(utility_current_loa_ - utility_alternative_loa_); 
-                FL_LOG("utility_delta = " << fl::Op::str(utility_delta_) );
-                utility_delta_msg_.data = utility_delta_;
-                loa_delta_pub_.publish(utility_delta_msg_);
+                // error_average_msg_.data = error_average_;
+                // goal_directed_motion_error_average_pub_.publish(error_average_msg_);
         }
-
 }
-
 
 int main(int argc, char *argv[])
 {
 
         // Fuzzylite stuff
 
-        fl::Engine* engine = new fl::Engine;
+        fl::Engine *engine = new fl::Engine;
         engine->setName("controller");
 
-        fl::InputVariable* inputVariable1 = new fl::InputVariable;
+        fl::InputVariable *inputVariable1 = new fl::InputVariable;
         inputVariable1->setEnabled(true);
         inputVariable1->setName("error");
         inputVariable1->setRange(0.000, 0.100);
@@ -310,7 +299,7 @@ int main(int argc, char *argv[])
         inputVariable1->addTerm(new fl::Trapezoid("large", 0.065, 0.085, 0.100, 0.100));
         engine->addInputVariable(inputVariable1);
 
-        fl::InputVariable* inputVariable2 = new fl::InputVariable;
+        fl::InputVariable *inputVariable2 = new fl::InputVariable;
         inputVariable2->setEnabled(true);
         inputVariable2->setName("speed");
         inputVariable2->setRange(-0.400, 0.400);
@@ -319,7 +308,7 @@ int main(int argc, char *argv[])
         inputVariable2->addTerm(new fl::Trapezoid("forward", 0.020, 0.030, 0.400, 0.400));
         engine->addInputVariable(inputVariable2);
 
-        fl::OutputVariable* outputVariable = new fl::OutputVariable;
+        fl::OutputVariable *outputVariable = new fl::OutputVariable;
         outputVariable->setEnabled(true);
         outputVariable->setName("change_LOA");
         outputVariable->setRange(-1.000, 1.000);
@@ -331,7 +320,7 @@ int main(int argc, char *argv[])
         outputVariable->addTerm(new fl::Triangle("no_change", -1.000, -1.000, 0.000));
         engine->addOutputVariable(outputVariable);
 
-        fl::RuleBlock* ruleBlock = new fl::RuleBlock;
+        fl::RuleBlock *ruleBlock = new fl::RuleBlock;
         ruleBlock->setEnabled(true);
         ruleBlock->setName("");
         ruleBlock->setConjunction(new fl::Minimum);
@@ -345,7 +334,6 @@ int main(int argc, char *argv[])
 
         //-------------------------------------------------------------------///
 
-
         ros::init(argc, argv, "mixed_initiative_controller");
         MixedInitiativeController controller_obj(engine);
 
@@ -355,5 +343,4 @@ int main(int argc, char *argv[])
                 ros::spinOnce();
                 r.sleep();
         }
-
 }

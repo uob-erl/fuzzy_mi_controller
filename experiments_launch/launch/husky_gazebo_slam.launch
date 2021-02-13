@@ -8,7 +8,7 @@
   <arg name="urdf_extras" default=""/>
 
   <!-- gazebo world/arena -->
-  <arg name="world_name" default="$(find experiments_launch)/world/mi_arena.world"/>
+  <arg name="world_name" default="$(find experiments_launch)/world/negotiation_arena.world"/>
 
   <!-- spawning coordinates in gazebo fom mi arena-->
   <arg name="x" default="9.04"/>
@@ -62,8 +62,8 @@
   </node>
 
   <!-- SLAM -->
-  <include file="$(find husky_navigation)/launch/gmapping.launch"/>
-  <!-- <include file="$(find experiments_launch)/launch/slam_hector.launch"/> -->
+  <!-- <include file="$(find husky_navigation)/launch/gmapping.launch"/> -->
+  <include file="$(find experiments_launch)/launch/slam_hector.launch"/>
 
   <!--- Run Move Base -->
   <include file="$(find husky_navigation)/launch/move_base.launch"/>

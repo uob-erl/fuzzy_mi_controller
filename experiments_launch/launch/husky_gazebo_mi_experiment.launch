@@ -18,11 +18,11 @@
   <arg name="scale_angular" default="0.9"/>
 
   <!-- other parameters -->
-  <arg name="world_name" default="$(find experiments_launch)/world/mi_arena.world"/>
+  <arg name="world_name" default="$(find experiments_launch)/world/negotiation_arena.world"/>
   <arg name="ground_truth_topic" default="husky_base_ground_truth"/>
 
   <!-- Run the map server -->
-  <arg name="map_file" default="$(find experiments_launch)/world/mi_map.yaml"/>
+  <arg name="map_file" default="$(find experiments_launch)/world/map.yaml"/>
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)"/>
 
   <!-- launching gazebo stuff -->
@@ -87,7 +87,8 @@
   <node respawn="true" pkg="laser_noise" type="laser_noise_node" name="">
     <!-- <remap from="/scan" to="/scan_filtered" />
     <remap from="/scan_with_noise" to="/scan_final" /> -->
-    <param name="noise_period" value="30.0"/>
+    <param name="noise_period" value="15.0"/>
+    <param name="noise_scale" value="0.2"/>
   </node>
 
   <!-- mode and status, logging and visualising nodes -->
