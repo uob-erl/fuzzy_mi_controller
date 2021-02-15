@@ -82,7 +82,7 @@ MixedInitiativeController::MixedInitiativeController(fl::Engine *engine)
         vel_robot_sub_ = n_.subscribe("/cmd_vel", 5, &MixedInitiativeController::robotVelCallback, this);                     // current velocity of the robot.
         vel_robot_expert_sub_ = n_.subscribe("/cmd_vel_expert", 5, &MixedInitiativeController::robotVelExpertCallback, this); // The expert suggested velocity e.g. perfect move_base
 
-        // The ros Duration controls the period in sec. that the cost will compute. currently 10hz
+        // The ros Duration controls the period in sec. that the cost will compute. currently 5hz
         compute_cost_ = n_.createTimer(ros::Duration(0.2), &MixedInitiativeController::computeCostCallback, this);
 
         engine_ = engine;

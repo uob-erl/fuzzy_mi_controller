@@ -56,13 +56,14 @@
   <node pkg="mixed_initiative_teleop" type="mixed_initiative_teleop" name="mi_teleop" output="screen">
     <param name="scale_linear" value="$(arg scale_linear)"/>
     <param name="scale_angular" value="$(arg scale_angular)"/>
+    <remap from="/human_suggested_loa" to="/loa"/>
   </node>
 
   <!-- cmd mixer for choosing autonomy mode or e.g. emergency stop if nav doesnt work good. (buttons for teleoperation - stop - autonomy mode) -->
   <!-- In xbox controller Y = teleop , A = auto , LB = stop (in any case) -->
   <node pkg="variable_autonomy" type="control_mixer_node" name="control_mixer" output="screen">
     <remap from="/cmd_vel" to="/husky_velocity_controller/cmd_vel"/>
-    <remap from="/loa_new" to="/loa"/>
+    <remap from="/nemi/negotiated_loa" to="/loa"/>
   </node>
 
   <!--- Run AMCL -->
@@ -92,9 +93,13 @@
   </node>
 
   <!-- mode and status, logging and visualising nodes -->
-  <node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen"/>
+  <node pkg="status_publisher" type="status_publisher" name="status_publisher" output="screen">
+       <remap from="/nemi/negotiated_loa" to="/loa" />
+  </node>
+  
   <node pkg="status_publisher" type="experiment_logger" name="experiment_logger" output="screen"/>
   <node pkg="status_publisher" type="status_sound_publisher_node" name="status_sound_publisher_node" output="screen"/>
+
   <!-- RVIZ config -->
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find experiments_launch)/rviz_cfg/rviz_husky.rviz"/>
 
