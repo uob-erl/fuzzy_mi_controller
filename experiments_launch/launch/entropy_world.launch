@@ -82,8 +82,8 @@
   <node pkg="hector_trajectory_server" type="hector_trajectory_server" name="trajectory_server" output="screen"/>
 
   <!-- Entropy nodes -->
-  <!-- <node pkg="behaviour_detection_package" type="sampling_node.py" name="estimation_error_node"/> -->
-  <!-- <node pkg="behaviour_detection_package" type="entropy_node.py" name="entropy_node"/> -->
+  <node pkg="behaviour_detection_package" type="estimation_error_node.py" name="estimation_error_node"/>
+  <node pkg="behaviour_detection_package" type="entropy_node.py" name="entropy_node"/>
 
 
 </launch>
