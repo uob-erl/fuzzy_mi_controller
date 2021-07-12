@@ -1,3 +1,10 @@
+# Important note
+Due to some updates certain experiments such as the negotiation require a specific commit in the erl Husky repo. in order to run.
+The problem seems to come from the melodic updates that remove kinect for RealSense and some other changes Clearpath made. We need to update these at some point.
+
+For now:
+`git checkout 147f4e69b481f171f6e6fc56a873a6d98419c170` in the ERL's husky repo Melodic branch. 
+Then `sudo apt-get install ros-melodic-realsense2-description` . 
 
 # Husky Mixed-Initative control
 Repository for the Mixed-Inititive control experiments with robots (real or simulated). 
