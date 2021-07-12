@@ -52,6 +52,12 @@ In order to unistall, if make install was used, `cat install_manifest.txt | xarg
 
 4) The library is installed.
 
+Some time you can get an error while running ROS with fuzzylite "cannot open shared object file X: No such file or directory":
+
+To fix it: `sudo /sbin/ldconfig -v`
+See this: https://itsfoss.com/solve-open-shared-object-file-quick-tip/
+
+
 # Running simulated robot arena in Gazebo
 Assuming ROS and Gazebo are correctly installed and working, you can run a simulated Husky robot in a Search and Rescue scenario using the Mixed Initiative (MI) controller. The buttons for switching Level of Autonomy and for controlling the robot in teleoperation are mapped for a xbox controller.
 
