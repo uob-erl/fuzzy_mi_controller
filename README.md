@@ -7,7 +7,9 @@ For now:
 Then `sudo apt-get install ros-melodic-realsense2-description` . 
 
 # Husky Mixed-Initative control
-Repository for the Mixed-Inititive control experiments with robots (real or simulated). 
+Repository for the Mixed-Inititive control experiments with robots (real or simulated). If you use any of these packages please cite the following paper or one of the papers mentioned in the specific branch.
+
+- Chiou, M., Hawes, N., & Stolkin, R. (2021). Mixed-initiative Variable Autonomy for Remotely Operated Mobile Robots. ACM Transactions on Human-Robot Interaction, 10(4), 1–34. https://doi.org/10.1145/3472206
 
  - For code and experiments in the ICHMS 2020 paper "Human operator cognitive availability aware Mixed-Initiative control" please use the "cognitive_availability" branch.
  
