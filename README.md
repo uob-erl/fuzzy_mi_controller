@@ -1,5 +1,8 @@
 # Human operator cognitive availability aware Mixed-Initiative control
-Repository for the cognitive availability aware Mixed-Inititive control experiments in paper "Human operator cognitive availability aware Mixed-Initiative control". The package "experiments_launch" contains all the top level .launch files. It is a good start if you want to understand how stuff work. 
+If you use any of this code please cite our paper "Human operator cognitive availability aware Mixed-Initiative control". You can find it in IEEE explore link and arxiv link.
+
+G. Petousakis, M. Chiou, G. Nikolaou and R. Stolkin, "Human operator cognitive availability aware Mixed-Initiative control," 2020 IEEE International Conference on Human-Machine Systems (ICHMS), 2020, pp. 1-4, https://doi.org/10.1109/ICHMS49158.2020.9209582
+
 
 For the controller to work it requires head pose estimation via Deepgaze https://github.com/uob-erl/deepgaze_ros.git .
 Additionaly the experiments require the ERL's forked package of husky drivers: https://github.com/uob-erl/husky.git , branch "learning_effects_exp". ALastly, the experiments require the use of the newest nav stack for kinetic: https://github.com/ros-planning/navigation/tree/kinetic-devel.
