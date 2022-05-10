@@ -1,8 +1,0 @@
-<launch>
-
-<!--bayes-->
-  <node pkg="bayesian_operator_intent" type="bayes.py" name="bayes.py" output="screen">
-  </node>
-
-
-</launch>
