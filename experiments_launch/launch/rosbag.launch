@@ -3,7 +3,9 @@
 
 <!-- launch rosbag tool but record certain topics-->
 <node pkg="rosbag" type="record" name="rosbag"
-       args="-o /home/manolis/rosbags
+       args="-o /home/dimiubuntu/Downloads
+		/experiment_started
+                /ai_switch_count
                 /joy
                 /joy2
                 /joint_states
@@ -11,73 +13,70 @@
                 /teleop/cmd_vel
                 /cmd_vel
                 /odom
-                /scan
-                /scan_final
-                /map
-                /map_metadata
-                /map_updates
-                /amcl/parameter_descriptions
-                /amcl/parameter_updates
-		/particlecloud
                 /amcl_pose
-                /tf
-                /tf_static
-		/trajectory
-		/cam_compress/image/compressed
-		/cam_compress/image/compressed/parameter_descriptions
- 		/cam_compress/image/compressed/parameter_updates
-                /control_mode
-		/noise_reset
-                /noise_active
-		/secondary_task/ended
-		/secondary_task/started
-                /experiment_started
-              	/robot_status/nav/compressed
-		/robot_status/mode/compressed/parameter_descriptions
- 		/robot_status/nav/compressed/parameter_updates
- 		/robot_status/mode/compressed
-		/robot_status/mode/compressed/parameter_updates
 	        /clicked_point
-  		/move_base/local_costmap/obstacle_layer_footprint/parameter_updates
-            	/move_base/NavfnROS/plan
-            	/move_base/status
-                /move_base/local_costmap/obstacle_layer/parameter_updates
-                /move_base/TrajectoryPlannerROS/local_plan
-		/move_base/global_costmap/obstacle_layer_footprint/footprint_stamped
-          	/move_base/feedback
-		/move_base/local_costmap/costmap
-		/move_base/global_costmap/inflation_layer/parameter_descriptions
- 		/move_base/local_costmap/inflation_layer/parameter_updates
- 		/move_base/parameter_updates
-		/move_base/local_costmap/obstacle_layer_footprint/footprint_stamped
- 		/move_base/global_costmap/costmap
 		/move_base/current_goal
-		/move_base/local_costmap/parameter_updates
- 		/move_base/TrajectoryPlannerROS/parameter_descriptions
+		/move_base/feedback
  		/move_base/goal
- 		/move_base/TrajectoryPlannerROS/cost_cloud
-		/move_base/TrajectoryPlannerROS/parameter_updates
- 		/move_base/global_costmap/obstacle_layer_footprint/parameter_descriptions
-		/move_base/global_costmap/obstacle_layer/parameter_updates
-		/move_base/global_costmap/costmap_updates
-		/move_base/local_costmap/inflation_layer/parameter_descriptions
-		/move_base/local_costmap/parameter_descriptions
-		/move_base/global_costmap/inflation_layer/parameter_updates
- 		/move_base/global_costmap/obstacle_layer/parameter_descriptions
-		/move_base/global_costmap/static_layer/parameter_updates
-		/move_base/local_costmap/costmap_updates
-		/move_base/parameter_descriptions
-		/move_base/global_costmap/parameter_updates
-		/move_base/global_costmap/obstacle_layer_footprint/parameter_updates
- 		/move_base/global_costmap/static_layer/parameter_descriptions
-   		/move_base/TrajectoryPlannerROS/global_plan
-   		/move_base/local_costmap/obstacle_layer_footprint/parameter_descriptions
-   		/move_base/local_costmap/obstacle_layer/parameter_descriptions
-   		/move_base/global_costmap/parameter_descriptions
-   		/move_base/result
  		/move_base/cancel
 		/move_base_simple/goal
+		/move_base/result
+		/move_base/status
+		/move_base_simple/goal
+		/move_base/GlobalPlanner/plan
+                /goal_directed_motion/error
+		/goal_directed_motion/error_average
+		/husky_base_ground_truth
+		/husky_velocity_controller/cmd_vel
+		/husky_velocity_controller/odom
+		/most_probable_goal
+		/poster1
+		/poster2
+		/poster3
+		/poster4
+		/poster5
+		/angle1
+		/angle2
+		/angle3
+		/angle4
+		/angle5
+		/path1
+		/path2
+		/path3
+		/path4
+		/path5
+		/dis1
+		/dis2
+		/dis3
+		/dis4
+		/dis5
+		/term1
+		/term2
+		/term3
+		/term4
+		/term5
+		/intent_change
+		/intent_click
+		/clicked_point
  		/diagnostics
+                /clock
+		/loa
+		/loa_change
+                /loa_has_changed
+		/scan
+		/scan_with_noise
+		/secondary_task/ended
+		/secondary_task/started
+		/set_pose
+                /cmd_vel_optimal
+                /cmd_vel
+                /vector_vel_error
+	        /linear_vel_error
+		/tf
+		/tf_static
+		/trajectory"
+		/>
+		/angular_error" />
 		/rosout
 		/rosout_agg" />
 </launch>

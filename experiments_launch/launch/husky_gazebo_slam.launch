@@ -4,21 +4,38 @@
 
   <!-- parameters for the husky packages e.g. for husky description -->
   <arg name="laser_enabled" default="true"/>
-  <arg name="realsense_enabled" default="true"/>
+  <arg name="kinect_enabled" default="true"/>
   <arg name="urdf_extras" default=""/>
 
   <!-- gazebo world/arena -->
-  <arg name="world_name" default="$(find experiments_launch)/world/mi_arena.world"/>
+  <arg name="world_name" default="$(find erl_arenas)/worlds/operator_intent_mi_test6.world"/>
+<!--<<<<<<< Updated upstream
+  <arg name="world_name" default="$(find erl_arenas)/worlds/operator_intent_mi_test3.world"/>
+=======
+<<<<<<< Updated upstream
+  <arg name="world_name" default="$(find erl_arenas)/worlds/operator_intent_mi_test1.world"/>
+>>>>>>> Stashed changes /-->
 
+ <!-- spawning coordinates in gazebo -->
+  <!-- <arg name="x" default="9.04"/> -->
+=======
+  <!-- <arg name="world_name" default="$(find erl_arenas)/worlds/operator_intent_test.world"/> -->
+  <!-- <arg name="world_name" default="$(find erl_arenas)/worlds/operator_intent_mi.world"/> -->
   <!-- spawning coordinates in gazebo fom mi arena-->
   <arg name="x" default="9.04"/>
+>>>>>>> Stashed changes
   <arg name="y" default="-6.99"/>
   <arg name="z" default="0"/>
   <arg name="yaw" default="3.14"/>
 
-  <!-- spawning coordinates in gazebo from training arena-->
-  <!-- <arg name="x" default="10.3"/>
-  <arg name="y" default="3.3"/>
+  spawning coordinates in gazebo from training arena -->
+<!--<<<<<<< Updated upstream 
+  <arg name="x" default="10.3"/>
+  <arg name="y" default="3.3"/> -->
+<!--======= 
+  <arg name="x" default="1.52055191994"/> 
+  <arg name="y" default="10.1988687515"/>
+ >>>>>>> Stashed changes 
   <arg name="z" default="0"/>
   <arg name="yaw" default="3.14"/> -->
 
@@ -29,7 +46,7 @@
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-    <arg name="realsense_enabled" value="$(arg realsense_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="urdf_extras" value="$(arg urdf_extras)"/>
     <arg name="x" value="$(arg x)"/>
     <arg name="y" value="$(arg y)"/>

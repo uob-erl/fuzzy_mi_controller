@@ -1,0 +1,19 @@
+<launch>
+
+<!-- optimal move_base -->
+<include file="$(find experiments_launch)/launch/move_base_expert.launch"/>
+
+
+<!-- MI controller-->
+  <node respawn="true" pkg="variable_autonomy" type="mi_fuzzy_intent_controller_node" name="mi_fuzzy_intent_controller" output="screen">
+  <!--node respawn="true" pkg="variable_autonomy" type="mi_fuzzy_controller_intent_node" name="mi_fuzzy_controller_intent" output="screen"-->
+    <remap from="/cmd_vel" to="/husky_velocity_controller/cmd_vel" />
+    <!-- <remap from="/cmd_vel_expert" to="/expert_planner/cmd_vel" /> -->
+  </node>
+
+  <!--bayes-->
+  <!--<node pkg="bayesian_operator_intent" type="main_experiment.py" name="main_experiment.py" output="screen">
+</node> -->
+
+
+</launch>
