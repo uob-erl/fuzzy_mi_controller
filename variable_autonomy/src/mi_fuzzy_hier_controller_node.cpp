@@ -1,9 +1,8 @@
-
 /*!
    BLABLABLA
  */
 
-
+#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 
@@ -14,6 +13,7 @@
 #include <geometry_msgs/Twist.h>
 #include "std_msgs/Bool.h"
 #include "std_msgs/Int8.h"
+#include "std_msgs/Float32.h"
 #include "std_msgs/Float64.h"
 #include <actionlib_msgs/GoalID.h>
 #include <actionlib_msgs/GoalStatusArray.h>
@@ -33,16 +33,22 @@ void robotVelExpertCallback(const geometry_msgs::Twist::ConstPtr& msg);
 void robotVelCallback(const geometry_msgs::Twist::ConstPtr& msg);
 void computeCostCallback(const ros::TimerEvent&);
 void goalResultCallBack(const actionlib_msgs::GoalStatusArray::ConstPtr& goalResult);
+void boirCallback(const std_msgs::Float32::ConstPtr& msg);
+void deepgazeCallback(const std_msgs::Float32::ConstPtr& msg);
 
 int loa_, number_timesteps_error_, count_timesteps_error_, number_timesteps_vel_, count_timesteps_vel_, previous_loa_;
-bool valid_loa_, mi_active_;
+//bool valid_loa_, mi_active_, boir_active_;
+bool valid_loa_, mi_active_, boir_active_, deepgaze_active_;
 double error_sum_, error_average_, velocity_sum_, vel_error_average_,  a_,vel_error_, vel_error_threshold_, decision_;
 std_msgs::Bool loa_change_, loa_changed_msg_;
 std_msgs::Float64 error_average_msg_, vel_average_msg_;
 std_msgs::Int8 ai_switch_count_msg_;
+std_msgs::Float32 cognitive_availability_, max_posterior_;
+//std_msgs::Float32 max_posterior_;
 
 ros::NodeHandle n_;
-ros::Subscriber loa_sub_,vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_;
+ros::Subscriber loa_sub_,vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_, boir_sub_, deepgaze_sub_;
+//ros::Subscriber loa_sub_,vel_robot_sub_, vel_robot_expert_sub_, sub_goal_status_, boir_sub_;
 ros::Publisher loa_pub_, loa_change_pub_, goal_directed_motion_error_pub_, goal_directed_motion_error_average_pub_, ai_switch_count_pub_, loa_changed_pub_;
 ros::Timer compute_cost_;
 
@@ -79,12 +85,29 @@ MixedInitiativeController::MixedInitiativeController(fl::Engine* engine)
         loa_sub_ = n_.subscribe("/loa", 5, &MixedInitiativeController::loaCallback, this); // the current LOA
         vel_robot_sub_ = n_.subscribe("/cmd_vel", 5, &MixedInitiativeController::robotVelCallback, this); // current velocity of the robot.
         vel_robot_expert_sub_ = n_.subscribe("/cmd_vel_expert", 5, &MixedInitiativeController::robotVelExpertCallback, this); // The expert suggested velocity e.g. perfect move_base
-
+        boir_sub_ = n_.subscribe("/max_posterior", 5, &MixedInitiativeController::boirCallback, this);
+        deepgaze_sub_ = n_.subscribe("/cognitive_availability", 5, &MixedInitiativeController::deepgazeCallback, this);
         // The ros Duration controls the period in sec. that the cost will compute. currently 10hz
         compute_cost_ = n_.createTimer(ros::Duration(0.2), &MixedInitiativeController::computeCostCallback, this);
 
         engine_ = engine;
         FL_LOG("Fuzzy engine created");
+
+}
+
+void MixedInitiativeController::deepgazeCallback(const std_msgs::Float32::ConstPtr &msg)
+{
+     cognitive_availability_ = *msg;
+     deepgaze_active_ = 1;
+//     ROS_INFO("cognitive availability: %d", cognitive_availability_.data);
+//     ROS_INFO("deepgaze active: %d", deepgaze_active_);
+}
+
+
+void MixedInitiativeController::boirCallback(const std_msgs::Float32::ConstPtr& msg)
+{
+        max_posterior_ = *msg;
+        boir_active_ = 1;
 
 }
 
@@ -188,7 +211,7 @@ void MixedInitiativeController::loaCallback(const std_msgs::Int8::ConstPtr& msg)
 void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
 {
 
-        if (mi_active_ = 1)
+        if (mi_active_ = 1) // !!deepgaze has check that deepgaze is active, maybe we need the same for posterior
         {
                 vel_error_ = cmd_vel_expert_.linear.x - cmd_vel_robot_.linear.x;
                 vel_error_ = fabs(vel_error_);
@@ -224,12 +247,18 @@ void MixedInitiativeController::computeCostCallback(const ros::TimerEvent&)
                 else if (count_timesteps_error_ > number_timesteps_error_)
                 {
                         error_average_ = a_ * vel_error_ + (1-a_) * error_average_;
+                        //input values to fuzzy engine
                         engine_->setInputValue("error", error_average_);
                         engine_->setInputValue("speed", cmd_vel_robot_.linear.x);
+                        engine_->setInputValue("current_loa", loa_);
+                        engine_->setInputValue("cognitive_availability", cognitive_availability_.data);
+                        engine_->setInputValue("boir", max_posterior_.data); // !!maybe missing posterior is causing the bug
                         engine_->process();
                         decision_ = engine_->getOutputValue("change_LOA");
                         FL_LOG("error = " << fl::Op::str(error_average_) );
                         FL_LOG("speed = " << fl::Op::str(cmd_vel_robot_.linear.x) );
+                        FL_LOG("cognitive_availability = " << fl::Op::str(cognitive_availability_.data) );
+                        FL_LOG("posterior = "  << fl::Op::str(max_posterior_.data) );
                         FL_LOG("Decision = " << fl::Op::str(engine_->getOutputValue("change_LOA") ) );
 
 
@@ -290,6 +319,36 @@ int main(int argc, char *argv[])
         inputVariable2->addTerm(new fl::Trapezoid("forward", 0.020, 0.030, 0.400, 0.400));
         engine->addInputVariable(inputVariable2);
 
+        fl::InputVariable* current_loa = new fl::InputVariable;
+        current_loa->setName("current_loa");
+        current_loa->setDescription("");
+        current_loa->setEnabled(true);
+        current_loa->setRange(0.000, 3.000);
+        current_loa->setLockValueInRange(false);
+        current_loa->addTerm(new fl::Rectangle("teleop", 0.900, 1.100));
+        current_loa->addTerm(new fl::Rectangle("auto", 1.900, 2.100));
+        engine->addInputVariable(current_loa);
+
+        fl::InputVariable* cognitive_availability = new fl::InputVariable;
+        cognitive_availability->setName("cognitive_availability");
+        cognitive_availability->setDescription("");
+        cognitive_availability->setEnabled(true);
+        cognitive_availability->setRange(0.000, 50.000);
+        cognitive_availability->setLockValueInRange(false);
+        cognitive_availability->addTerm(new fl::Trapezoid("available", 0.000, 0.000, 18.000, 22.000));
+        cognitive_availability->addTerm(new fl::Trapezoid("unavailable", 18.000, 22.000, 50.000, 50.000));
+        engine->addInputVariable(cognitive_availability);
+
+        fl::InputVariable* boir = new fl::InputVariable; //changed name of fuzzy set to boir instead of explore
+        boir->setName("boir");
+        boir->setDescription("");
+        boir->setEnabled(true);
+        boir->setRange(0.000, 100.000);
+        boir->setLockValueInRange(false);
+        boir->addTerm(new fl::Trapezoid("not_exploring", 0.000, 0.000, 0.450, 0.600));
+        boir->addTerm(new fl::Trapezoid("exploring", 0.500, 0.600, 1.000, 1.000));
+        engine->addInputVariable(boir);
+
         fl::OutputVariable* outputVariable = new fl::OutputVariable;
         outputVariable->setEnabled(true);
         outputVariable->setName("change_LOA");
@@ -309,18 +368,25 @@ int main(int argc, char *argv[])
         ruleBlock->setDisjunction(new fl::Maximum);
         ruleBlock->setImplication(new fl::Minimum);
         // ruleBlock->setActivation(new fl::Threshold);This is now called implication operator
+        ruleBlock->setActivation(new fl::First(1, 0.000));
+        //Deepgaze rules
+        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is auto then change_LOA is no_change", engine));
+        //ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is teleop and speed is zero then change_LOA is no_change", engine));
+        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is teleop and speed is not zero then change_LOA is change", engine));
+        ruleBlock->addRule(fl::Rule::parse("if cognitive_availability is unavailable and current_loa is teleop and boir is not_exploring then change_LOA is change", engine));  //this could be redundant
+        ruleBlock->addRule(fl::Rule::parse("if boir is exploring and current_loa is teleop then change_LOA is no_change", engine));
         ruleBlock->addRule(fl::Rule::parse("if error is small or error is medium then change_LOA is no_change", engine));
         ruleBlock->addRule(fl::Rule::parse("if error is large and speed is not reverse then change_LOA is change", engine));
         ruleBlock->addRule(fl::Rule::parse("if speed is reverse and error is large then change_LOA is no_change", engine));
         engine->addRuleBlock(ruleBlock);
 
-        //-------------------------------------------------------------------///
+        //-------------------------------------------------------------------//
 
 
-        ros::init(argc, argv, "mixed_initiative_controller");
+        ros::init(argc, argv, "hier_mixed_initiative_controller");
         MixedInitiativeController controller_obj(engine);
 
-        ros::Rate r(10); // 10 hz
+        ros::Rate r(5); // 10 hz
         while (ros::ok())
         {
                 ros::spinOnce();

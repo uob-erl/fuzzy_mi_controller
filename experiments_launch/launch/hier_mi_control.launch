@@ -5,7 +5,7 @@
 
 
 <!-- MI controller-->
-  <node respawn="true" pkg="variable_autonomy" type="mi_fuzzy_controller_node" name="mi_fuzzy_controller" output="screen">
+  <node respawn="true" pkg="variable_autonomy" type="mi_fuzzy_hier_controller_node" name="mi_fuzzy_controller" output="screen">
     <remap from="/cmd_vel" to="/husky_velocity_controller/cmd_vel" />
     <!-- <remap from="/cmd_vel_expert" to="/expert_planner/cmd_vel" /> -->
   </node>
