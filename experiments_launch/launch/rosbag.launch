@@ -29,34 +29,25 @@
 		/husky_base_ground_truth
 		/husky_velocity_controller/cmd_vel
 		/husky_velocity_controller/odom
+		/robot_coord_X
+		/robot_coord_Y
 		/most_probable_goal
-		/poster1
-		/poster2
-		/poster3
-		/poster4
-		/poster5
+		/max_posterior
+		/posterior_0
+		/posterior_1
+		/posterior_2
+		/posterior_3
+		/angle0
 		/angle1
 		/angle2
 		/angle3
-		/angle4
-		/angle5
+		/path0
 		/path1
 		/path2
 		/path3
-		/path4
-		/path5
-		/dis1
-		/dis2
-		/dis3
-		/dis4
-		/dis5
-		/term1
-		/term2
-		/term3
-		/term4
-		/term5
-		/intent_change
-		/intent_click
+		/isA
+		/isB
+		/isGLOBAL
 		/clicked_point
  		/diagnostics
                 /clock
