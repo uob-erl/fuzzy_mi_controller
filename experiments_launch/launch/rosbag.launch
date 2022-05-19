@@ -4,6 +4,7 @@
 <!-- launch rosbag tool but record certain topics-->
 <node pkg="rosbag" type="record" name="rosbag"
        args="-o /home/dimiubuntu/Downloads
+	        /cognitive_availability
 		/experiment_started
                 /ai_switch_count
                 /joy
@@ -14,6 +15,12 @@
                 /cmd_vel
                 /odom
                 /amcl_pose
+	     	/camera/parameter_descriptions
+		/camera/parameter_updates
+		/camera/rgb/camera_info
+		/camera/rgb/image_raw/compressed
+		/camera/rgb/image_raw/compressed/parameter_descriptions
+		/camera/rgb/image_raw/compressed/parameter_updates
 	        /clicked_point
 		/move_base/current_goal
 		/move_base/feedback
